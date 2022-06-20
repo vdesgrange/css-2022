@@ -1,5 +1,5 @@
 import math
-from model import VirusOnNetwork, State, number_infected
+from .model import VirusOnNetwork, State, number_infected
 from mesa.visualization.modules import NetworkModule, ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import Slider
