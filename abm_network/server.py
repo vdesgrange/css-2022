@@ -128,10 +128,10 @@ model_params = {
         ['random', 'degree', 'closeness', 'betweenness'],
         description="First infected node(s) are based on centrality"
     ),
-        "network": Choice(
+    "network": Choice(
         "Network Topology",
-        'Erdos-Renyi'.lower(),
-        ['erdos-renyi', 'watts-strogatz', 'barabasi-albert'],
+        'Erdos-Renyi',
+        ['Erdos-Renyi', 'Watts-Strogatz', 'Barabasi-Albert'],
         description="Network Types (Random, Small-World, Scale Free)"
     )
 }

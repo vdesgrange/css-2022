@@ -42,13 +42,12 @@ class VirusOnNetwork(Model):
         recovery_chance=0.3,
         gain_resistance_chance=0.5,
         network = "erdos-renyi",
+        matrix = [],
     ):
 
         self.num_nodes = num_nodes
         prob = avg_node_degree / self.num_nodes
         self.G = self.get_network(network, prob)
-        print(network)
-        print(self.get_network(network, prob))
         self.grid = mesa.space.NetworkGrid(self.G)
         self.schedule = mesa.time.RandomActivation(self)
         self.initial_outbreak_size = (
@@ -59,6 +58,7 @@ class VirusOnNetwork(Model):
         self.malware_check_frequency = malware_check_frequency
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
+        self.matrix = matrix
 
         self.datacollector = mesa.DataCollector(
             {
@@ -80,13 +80,11 @@ class VirusOnNetwork(Model):
                 self.gain_resistance_chance,
             )
             self.schedule.add(a)
-
             # Add the agent to the node
             self.grid.place_agent(a, node)
 
         # Infect some nodes
         infected_nodes = self.set_initial_outbreak(initial_outbreak_size, centrality, descending = True)
-        print(infected_nodes)
 
         for a in self.grid.get_cell_list_contents(infected_nodes):
             a.state = State.INFECTED
@@ -94,13 +92,14 @@ class VirusOnNetwork(Model):
         self.running = True
         self.datacollector.collect(self)
 
+        # self.print_infected()
+        print([j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)])
 
     def get_network(self, network, prob):
-
-        if network == "erdos-renyi":
+        if network.lower() == "erdos-renyi":
             return nx.erdos_renyi_graph(n = self.num_nodes, p = prob)
 
-        elif network == "barabasi-albert":
+        elif network.lower() == "barabasi-albert":
             return nx.barabasi_albert_graph(n = self.num_nodes, m = 1)
 
         else:
@@ -142,16 +141,25 @@ class VirusOnNetwork(Model):
         except ZeroDivisionError:
             return math.inf
 
+
     def step(self):
         self.schedule.step()
-
+        row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
+        self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
+        print(self.matrix)
 
     def run_model(self, n):
 
         for i in range(n):
             self.step()
+
+    def print_infected(self):
+        l1 = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
+        print(l1)
+        self.matrix.append(l1)
+        print(number_susceptible(self), number_infected(self), number_resistant(self))
 
 
 class malwareAgent(Agent):
@@ -173,6 +181,10 @@ class malwareAgent(Agent):
         self.malware_check_frequency = malware_check_frequency
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
+
+    # @property
+    # def state(self):
+    #     return self.state
 
     def try_to_infect_neighbors(self):
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
