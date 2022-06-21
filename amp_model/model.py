@@ -1,26 +1,26 @@
 import numpy as np
 
-from rules import COEFF, STATES
+from constants import COEFF, STATES
 
 class Device:
-    def __init__(self, id):
+    def __init__(self, id, network):
         self.id = id
+        self.network = network
         self.state = STATES["S"]
         self.t = 0
         self.tau = 0
 
+    def omega(self):
+        omega = 0
+        neighbours = list(self.network.G.neighbors(self.id))
+        for node_j in neighbours:
+            if node_j['class'].state == STATES["I"]:
+                omega += 1
 
-    def run(self, n):
-        for _ in range(n):
-            self.step()
-
-        return
-
-    def get_number_neighboor(self):
-        return 0
+        return omega
 
     def X(self):
-        omega = self.get_number_neighboor()
+        omega = self.omega()
         p =[COEFF["H"] * omega, 1 - COEFF["H"] * omega]
         return np.random.choice(1, None, p=p)
 
@@ -62,3 +62,43 @@ class Device:
             return
 
         return
+
+def loop(st_i, network, initial_nodes):
+    """
+    Step of the AMP model simulation
+    :param st_i: step number
+    :param net: graph class
+    :return:
+    """
+    visited = set()  # Node visited
+    to_visit = []  # Node to visit
+    to_visit.extend(list(initial_nodes))
+
+    while to_visit:  # BFS
+        node_i = to_visit.pop(0)
+        if node_i not in visited:
+            network.G.node[node_i]['class'].step()
+
+            visited.add(node_i)
+            neighbours = list(network.G.neighbors(node_i))
+            to_visit.extend(neighbours)
+
+    network.get_attributes()
+
+    return network
+
+def run(network, max_iter, infected_ids):
+    next = network
+
+    # Set infected nodes
+    source_neighbours = set()
+    for id in infected_ids:
+        source_neighbours = source_neighbours.union(set(network.G.neighbors(id)))
+        network.node[id]['class'].state = COEFF["I"]
+
+    # Redistribute flow
+    for i in range(max_iter):
+        next = loop(i, next, source_neighbours)
+        source_neighbours = [np.random.choice(list(network.G.nodes))]
+
+    return
