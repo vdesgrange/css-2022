@@ -2,7 +2,7 @@ import math
 from .model import VirusOnNetwork, State, number_infected
 from mesa.visualization.modules import NetworkModule, ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.UserParam import Slider
+from mesa.visualization.UserParam import Slider, Choice
 
 def network_portrayal(G):
     # The model ensures there is always 1 agent per node
@@ -49,6 +49,7 @@ def network_portrayal(G):
 
 
 network = NetworkModule(network_portrayal, 500, 500)
+
 chart = ChartModule(
     [
         {"Label": "Infected", "Color": "#FF0000"},
@@ -73,7 +74,7 @@ model_params = {
         "Number of agents",
         10,
         10,
-        100,
+        500,
         1,
         description="Choose how many agents to include in the model",
     ),
@@ -88,7 +89,7 @@ model_params = {
         1,
         description="Initial Outbreak Size",
     ),
-    "virus_spread_chance":  Slider(
+    "malware_spread_chance":  Slider(
         "Virus Spread Chance",
         0.4,
         0.0,
@@ -96,7 +97,7 @@ model_params = {
         0.1,
         description="Probability that susceptible neighbor will be infected",
     ),
-    "virus_check_frequency":  Slider(
+    "malware_check_frequency":  Slider(
         "Virus Check Frequency",
         0.4,
         0.0,
@@ -121,12 +122,24 @@ model_params = {
         description="Probability that a recovered agent will become "
         "resistant to this virus in the future",
     ),
+    "centrality": Choice(
+        "Infected Node Centrality",
+        'random',
+        ['random', 'degree', 'closeness', 'betweenness'],
+        description="First infected node(s) are based on centrality"
+    ),
+        "network": Choice(
+        "Network Topology",
+        'Erdos-Renyi'.lower(),
+        ['erdos-renyi', 'watts-strogatz', 'barabasi-albert'],
+        description="Network Types (Random, Small-World, Scale Free)"
+    )
 }
 
 server = ModularServer(
     VirusOnNetwork,
     [network, get_resistant_susceptible_ratio, chart],
-    "Virus Model",
+    "Malware Propagtion in Complex Networks",
     model_params,
 )
 server.port = 8521

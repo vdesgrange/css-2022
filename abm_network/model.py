@@ -11,7 +11,6 @@ class State(Enum):
     INFECTED = 1
     RESISTANT = 2
 
-
 def number_state(model, state):
     return sum(1 for a in model.grid.get_all_cell_contents() if a.state is state)
 
@@ -29,29 +28,35 @@ def number_resistant(model):
 
 
 class VirusOnNetwork(Model):
-    """A virus model with some number of agents"""
+
+    """A malware model with some number of agents"""
 
     def __init__(
         self,
-        num_nodes=10,
+        num_nodes=30,
         avg_node_degree=3,
-        initial_outbreak_size=1,
-        virus_spread_chance=0.4,
-        virus_check_frequency=0.4,
+        initial_outbreak_size=2,
+        centrality="random",
+        malware_spread_chance=0.4,
+        malware_check_frequency=0.4,
         recovery_chance=0.3,
         gain_resistance_chance=0.5,
+        network = "erdos-renyi",
     ):
 
         self.num_nodes = num_nodes
         prob = avg_node_degree / self.num_nodes
-        self.G = nx.erdos_renyi_graph(n=self.num_nodes, p=prob)
+        self.G = self.get_network(network, prob)
+        print(network)
+        print(self.get_network(network, prob))
         self.grid = mesa.space.NetworkGrid(self.G)
         self.schedule = mesa.time.RandomActivation(self)
         self.initial_outbreak_size = (
             initial_outbreak_size if initial_outbreak_size <= num_nodes else num_nodes
         )
-        self.virus_spread_chance = virus_spread_chance
-        self.virus_check_frequency = virus_check_frequency
+        self.centrality = centrality
+        self.malware_spread_chance = malware_spread_chance
+        self.malware_check_frequency = malware_check_frequency
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
 
@@ -65,26 +70,69 @@ class VirusOnNetwork(Model):
 
         # Create agents
         for i, node in enumerate(self.G.nodes()):
-            a = VirusAgent(
+            a = malwareAgent(
                 i,
                 self,
                 State.SUSCEPTIBLE,
-                self.virus_spread_chance,
-                self.virus_check_frequency,
+                self.malware_spread_chance,
+                self.malware_check_frequency,
                 self.recovery_chance,
                 self.gain_resistance_chance,
             )
             self.schedule.add(a)
+
             # Add the agent to the node
             self.grid.place_agent(a, node)
 
         # Infect some nodes
-        infected_nodes = self.random.sample(list(self.G), self.initial_outbreak_size)
+        infected_nodes = self.set_initial_outbreak(initial_outbreak_size, centrality, descending = True)
+        print(infected_nodes)
+
         for a in self.grid.get_cell_list_contents(infected_nodes):
             a.state = State.INFECTED
 
         self.running = True
         self.datacollector.collect(self)
+
+
+    def get_network(self, network, prob):
+
+        if network == "erdos-renyi":
+            return nx.erdos_renyi_graph(n = self.num_nodes, p = prob)
+
+        elif network == "barabasi-albert":
+            return nx.barabasi_albert_graph(n = self.num_nodes, m = 1)
+
+        else:
+            return nx.watts_strogatz_graph(n = self.num_nodes, k = int(0.2*(self.num_nodes)), p = prob, seed = None)
+
+
+    def set_initial_outbreak(self, initial_outbreak_size, centrality = "random", descending = True):
+
+        """ 
+        Set initial outbreak nodes
+        centralities:
+        - None (random)
+        - degree centrality
+        - Closeness
+        - Betweennes
+        """
+
+        if centrality == 'random':
+            return self.random.sample(list(self.G), self.initial_outbreak_size)
+
+        elif centrality == "degree":
+            degree = sorted(nx.degree_centrality(self.G).items(), key=lambda x:x[1], reverse = descending)
+            return [i[0] for i in degree][:initial_outbreak_size]
+
+        elif centrality == "closeness":
+            closeness = sorted(nx.closeness_centrality(self.G).items(), key=lambda x:x[1], reverse = descending)
+            return [i[0] for i in closeness][:initial_outbreak_size]
+
+        elif centrality == "betweenness":
+            betweenness = sorted(nx.betweenness_centrality(self.G).items(), key=lambda x:x[1], reverse = descending)
+            return [i[0] for i in betweenness][:initial_outbreak_size]
+
 
     def resistant_susceptible_ratio(self):
         try:
@@ -96,31 +144,33 @@ class VirusOnNetwork(Model):
 
     def step(self):
         self.schedule.step()
+
         # collect data
         self.datacollector.collect(self)
 
     def run_model(self, n):
+
         for i in range(n):
             self.step()
 
 
-class VirusAgent(Agent):
+class malwareAgent(Agent):
+
     def __init__(
         self,
         unique_id,
         model,
         initial_state,
-        virus_spread_chance,
-        virus_check_frequency,
+        malware_spread_chance,
+        malware_check_frequency,
         recovery_chance,
         gain_resistance_chance,
     ):
         super().__init__(unique_id, model)
 
         self.state = initial_state
-
-        self.virus_spread_chance = virus_spread_chance
-        self.virus_check_frequency = virus_check_frequency
+        self.malware_spread_chance = malware_spread_chance
+        self.malware_check_frequency = malware_check_frequency
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
 
@@ -132,7 +182,7 @@ class VirusAgent(Agent):
             if agent.state is State.SUSCEPTIBLE
         ]
         for a in susceptible_neighbors:
-            if self.random.random() < self.virus_spread_chance:
+            if self.random.random() < self.malware_spread_chance:
                 a.state = State.INFECTED
 
     def try_gain_resistance(self):
@@ -150,7 +200,7 @@ class VirusAgent(Agent):
             self.state = State.INFECTED
 
     def try_check_situation(self):
-        if self.random.random() < self.virus_check_frequency:
+        if self.random.random() < self.malware_check_frequency:
             # Checking...
             if self.state is State.INFECTED:
                 self.try_remove_infection()
