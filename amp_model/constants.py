@@ -19,3 +19,5 @@ STATES = {
     "A": 2,
     "R": 3
 }
+
+COLORMAP = dict([('S', 'yellow'), ('I','orange'), ('A', 'red'), ('R', 'blue')])
