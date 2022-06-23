@@ -13,6 +13,7 @@ class State(Enum):
     INFECTED = 1
     RESISTANT = 2
     OFFLINE = 3
+    DEATH = 4
 
 def number_state(model, state):
     return sum(1 for a in model.grid.get_all_cell_contents() if a.state is state)
@@ -34,6 +35,10 @@ def number_offline(model):
     return number_state(model, State.OFFLINE)
 
 
+def number_death(model):
+    return number_state(model, State.DEATH)
+
+
 class VirusOnNetwork(Model):
 
     """A malware model with some number of agents"""
@@ -51,7 +56,8 @@ class VirusOnNetwork(Model):
         network="erdos-renyi",
         matrix = [],
         importance = random.uniform(0, 1),
-        susceptible_chance = 0.1
+        susceptible_chance = 0.01,
+        death_chance = 0.01,
     ):
 
         self.num_nodes = num_nodes
@@ -70,6 +76,7 @@ class VirusOnNetwork(Model):
         self.matrix = matrix
         self.importance = importance
         self.susceptible_chance = susceptible_chance
+        self.death_chance = death_chance
 
         self.datacollector = mesa.DataCollector(
             {
@@ -77,6 +84,7 @@ class VirusOnNetwork(Model):
                 "Susceptible": number_susceptible,
                 "Resistant": number_resistant,
                 "Offline": number_offline,
+                "Death": number_death,
             }
         )
 
@@ -91,7 +99,8 @@ class VirusOnNetwork(Model):
                 self.recovery_chance,
                 self.gain_resistance_chance,
                 self.importance,
-                self.susceptible_chance
+                self.susceptible_chance,
+                self.death_chance
             )
             self.schedule.add(a)
             # Add the agent to the node
@@ -162,7 +171,7 @@ class VirusOnNetwork(Model):
         self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
-        print(self.matrix)
+        # print(self.matrix)
 
     def run_model(self, n):
 
@@ -189,6 +198,7 @@ class malwareAgent(Agent):
         gain_resistance_chance,
         importance,
         susceptible_chance,
+        death_chance,
     ):
         super().__init__(unique_id, model)
 
@@ -199,7 +209,7 @@ class malwareAgent(Agent):
         self.gain_resistance_chance = gain_resistance_chance
         self.importance = importance
         self.susceptible_chance = susceptible_chance
-
+        self.death_chance = death_chance
 
     def try_to_notify_neighbors(self):
 
@@ -243,13 +253,15 @@ class malwareAgent(Agent):
             self.state = State.RESISTANT
 
     def try_remove_infection(self):
+        var = self.random.random()
         # Try to remove
-        if self.random.random() < self.recovery_chance:
+        if var < self.recovery_chance:
             # Success
             self.state = State.SUSCEPTIBLE
             self.try_gain_resistance()
+        elif var > 1 - self.death_chance:
+            self.state = State.DEATH
         else:
-            # Failed
             self.state = State.INFECTED
 
     def try_check_situation(self):
@@ -266,4 +278,5 @@ class malwareAgent(Agent):
         if self.state is State.INFECTED:
             self.try_to_infect_neighbors()
             self.try_to_notify_neighbors()
-        self.try_check_situation()
+        if self.state is not State.DEATH:
+            self.try_check_situation()
