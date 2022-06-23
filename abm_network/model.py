@@ -4,12 +4,15 @@ import networkx as nx
 import mesa
 from mesa.model import Model
 from mesa.agent import Agent
+import random
 
 
 class State(Enum):
+
     SUSCEPTIBLE = 0
     INFECTED = 1
     RESISTANT = 2
+    OFFLINE = 3
 
 def number_state(model, state):
     return sum(1 for a in model.grid.get_all_cell_contents() if a.state is state)
@@ -27,6 +30,10 @@ def number_resistant(model):
     return number_state(model, State.RESISTANT)
 
 
+def number_offline(model):
+    return number_state(model, State.OFFLINE)
+
+
 class VirusOnNetwork(Model):
 
     """A malware model with some number of agents"""
@@ -41,8 +48,10 @@ class VirusOnNetwork(Model):
         malware_check_frequency=0.4,
         recovery_chance=0.3,
         gain_resistance_chance=0.5,
-        network = "erdos-renyi",
+        reboot_chance=0.3,
+        network="erdos-renyi",
         matrix = [],
+        importance = random.uniform(0, 1)
     ):
 
         self.num_nodes = num_nodes
@@ -59,12 +68,15 @@ class VirusOnNetwork(Model):
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
         self.matrix = matrix
+        self.importance = importance
+        self.reboot_chance = reboot_chance
 
         self.datacollector = mesa.DataCollector(
             {
                 "Infected": number_infected,
                 "Susceptible": number_susceptible,
                 "Resistant": number_resistant,
+                "Offline": number_offline,
             }
         )
 
@@ -78,6 +90,8 @@ class VirusOnNetwork(Model):
                 self.malware_check_frequency,
                 self.recovery_chance,
                 self.gain_resistance_chance,
+                self.importance,
+                self.reboot_chance,
             )
             self.schedule.add(a)
             # Add the agent to the node
@@ -94,6 +108,7 @@ class VirusOnNetwork(Model):
 
         # self.print_infected()
         print([j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)])
+
 
     def get_network(self, network, prob):
         if network.lower() == "erdos-renyi":
@@ -141,7 +156,6 @@ class VirusOnNetwork(Model):
         except ZeroDivisionError:
             return math.inf
 
-
     def step(self):
         self.schedule.step()
         row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
@@ -173,6 +187,8 @@ class malwareAgent(Agent):
         malware_check_frequency,
         recovery_chance,
         gain_resistance_chance,
+        importance,
+        reboot_chance
     ):
         super().__init__(unique_id, model)
 
@@ -181,10 +197,26 @@ class malwareAgent(Agent):
         self.malware_check_frequency = malware_check_frequency
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
+        self.importance = importance
+        self.reboot_chance = reboot_chance
 
-    # @property
-    # def state(self):
-    #     return self.state
+
+    def try_to_notify_neighbors(self):
+
+        """ if importance under 0.8, nodes can shut themselves down in order to prevent being infected """
+
+        neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
+        susceptible_neighbors = [
+            agent
+            for agent in self.model.grid.get_cell_list_contents(neighbors_nodes)
+            if agent.state is State.SUSCEPTIBLE
+        ]
+
+        for a in susceptible_neighbors:
+            if a.importance < 0.7:
+                offline_probability = 1 - a.importance
+            if self.random.random() < offline_probability:
+                a.state = State.OFFLINE
 
     def try_to_infect_neighbors(self):
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
@@ -196,6 +228,11 @@ class malwareAgent(Agent):
         for a in susceptible_neighbors:
             if self.random.random() < self.malware_spread_chance:
                 a.state = State.INFECTED
+
+
+    def try_to_reboot(self):
+        if self.random.random() < self.reboot_chance:
+            self.state = State.SUSCEPTIBLE
 
     def try_gain_resistance(self):
         if self.random.random() < self.gain_resistance_chance:
@@ -216,8 +253,11 @@ class malwareAgent(Agent):
             # Checking...
             if self.state is State.INFECTED:
                 self.try_remove_infection()
+            if self.state is State.OFFLINE:
+                self.try_to_reboot()
 
     def step(self):
         if self.state is State.INFECTED:
             self.try_to_infect_neighbors()
+            self.try_to_notify_neighbors()
         self.try_check_situation()

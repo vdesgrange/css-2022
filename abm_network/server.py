@@ -8,13 +8,13 @@ def network_portrayal(G):
     # The model ensures there is always 1 agent per node
 
     def node_color(agent):
-        return {State.INFECTED: "#FF0000", State.SUSCEPTIBLE: "#008000"}.get(
+        return {State.OFFLINE: "#000000", State.INFECTED: "#FF0000", State.SUSCEPTIBLE: "#008000"}.get(
             agent.state, "#808080"
         )
 
     def edge_color(agent1, agent2):
         if State.RESISTANT in (agent1.state, agent2.state):
-            return "#000000"
+            return "#FFFFFF"
         return "#e8e8e8"
 
     def edge_width(agent1, agent2):
@@ -55,6 +55,7 @@ chart = ChartModule(
         {"Label": "Infected", "Color": "#FF0000"},
         {"Label": "Susceptible", "Color": "#008000"},
         {"Label": "Resistant", "Color": "#808080"},
+        {"Label": "Offline", "Color": "#000000"}
     ]
 )
 
