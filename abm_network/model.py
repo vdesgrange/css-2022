@@ -64,6 +64,7 @@ class VirusOnNetwork(Model):
         prob = avg_node_degree / self.num_nodes
         self.G = self.get_network(network, prob)
         self.grid = mesa.space.NetworkGrid(self.G)
+        print(self.grid)
         self.schedule = mesa.time.RandomActivation(self)
         self.initial_outbreak_size = (
             initial_outbreak_size if initial_outbreak_size <= num_nodes else num_nodes
@@ -171,7 +172,7 @@ class VirusOnNetwork(Model):
         self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
-        # print(self.matrix)
+        print(self.matrix)
 
     def run_model(self, n):
 
