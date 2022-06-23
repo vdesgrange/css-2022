@@ -48,10 +48,10 @@ class VirusOnNetwork(Model):
         malware_check_frequency=0.4,
         recovery_chance=0.3,
         gain_resistance_chance=0.5,
-        reboot_chance=0.3,
         network="erdos-renyi",
         matrix = [],
-        importance = random.uniform(0, 1)
+        importance = random.uniform(0, 1),
+        susceptible_chance = 0.1
     ):
 
         self.num_nodes = num_nodes
@@ -69,7 +69,7 @@ class VirusOnNetwork(Model):
         self.gain_resistance_chance = gain_resistance_chance
         self.matrix = matrix
         self.importance = importance
-        self.reboot_chance = reboot_chance
+        self.susceptible_chance = susceptible_chance
 
         self.datacollector = mesa.DataCollector(
             {
@@ -91,7 +91,7 @@ class VirusOnNetwork(Model):
                 self.recovery_chance,
                 self.gain_resistance_chance,
                 self.importance,
-                self.reboot_chance,
+                self.susceptible_chance
             )
             self.schedule.add(a)
             # Add the agent to the node
@@ -188,7 +188,7 @@ class malwareAgent(Agent):
         recovery_chance,
         gain_resistance_chance,
         importance,
-        reboot_chance
+        susceptible_chance,
     ):
         super().__init__(unique_id, model)
 
@@ -198,7 +198,7 @@ class malwareAgent(Agent):
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
         self.importance = importance
-        self.reboot_chance = reboot_chance
+        self.susceptible_chance = susceptible_chance
 
 
     def try_to_notify_neighbors(self):
@@ -213,7 +213,7 @@ class malwareAgent(Agent):
         ]
 
         for a in susceptible_neighbors:
-            if a.importance < 0.7:
+            if a.importance < 0.8:
                 offline_probability = 1 - a.importance
             if self.random.random() < offline_probability:
                 a.state = State.OFFLINE
@@ -230,8 +230,12 @@ class malwareAgent(Agent):
                 a.state = State.INFECTED
 
 
+    def try_be_susceptible(self):
+        if self.random.random() < self.susceptible_chance:
+            self.state = State.SUSCEPTIBLE
+
     def try_to_reboot(self):
-        if self.random.random() < self.reboot_chance:
+        if self.random.random() < self.importance:
             self.state = State.SUSCEPTIBLE
 
     def try_gain_resistance(self):
@@ -255,6 +259,8 @@ class malwareAgent(Agent):
                 self.try_remove_infection()
             if self.state is State.OFFLINE:
                 self.try_to_reboot()
+            if self.state is State.RESISTANT:
+                self.try_be_susceptible()
 
     def step(self):
         if self.state is State.INFECTED:
