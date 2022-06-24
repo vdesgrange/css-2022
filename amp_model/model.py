@@ -1,14 +1,14 @@
 import numpy as np
 import copy
 
-from constants import COEFF, STATES
+from constants import Coeff, State
 from graphic_utils import visualize
 
 class Device:
     def __init__(self, id, network):
         self.id = id
         self.network = network
-        self.state = STATES["S"]
+        self.state = State.S
         self.t = 0
         self.tau = 0
 
@@ -16,56 +16,56 @@ class Device:
         omega = 0
         neighbours = list(self.network.G.neighbors(self.id))
         for node_j in neighbours:
-            if self.network.G.nodes[node_j]['data'].state == STATES["I"]:
+            if self.network.G.nodes[node_j]['data'].state == State.I:
                 omega += 1
 
         return omega / len(neighbours)
 
     def X(self):
         omega = self.omega()
-        p =[COEFF["H"] * omega, 1 - COEFF["H"] * omega]
+        p =[Coeff.H * omega, 1 - Coeff.H * omega]
         return np.random.choice([0, 1], None, p=p)
 
     def Y(self):
-        return np.random.choice([0, 1, 2], None, p=[COEFF["A"], COEFF["B"], 1 - COEFF["A"] - COEFF["B"]])
+        return np.random.choice([0, 1, 2], None, p=[Coeff.A, Coeff.B, 1 - Coeff.A - Coeff.B])
 
     def Z(self):
-        return np.random.choice([0, 1], None, p=[COEFF["Rs"], 1 - COEFF["Rs"]])
+        return np.random.choice([0, 1], None, p=[Coeff.Rs, 1 - Coeff.Rs])
 
 
     def step(self):
         self.t += 1
         self.tau += 1
 
-        if self.state == STATES["S"] and self.X():
-            self.state = STATES["I"]
+        if self.state == State.S and self.X():
+            self.state = State.I
             self.t = 0
             return
 
-        if self.state == STATES["I"] and self.t > COEFF["T"]:
+        if self.state == State.I and self.t > Coeff.T:
             y = self.Y()
             if y == 0:
-                self.state = STATES["A"]
+                self.state = State.A
                 self.tau = 0
             elif y == 1:
-                self.state = STATES["S"]
+                self.state = State.S
             else:
-                self.state = STATES["R"]
+                self.state = State.R
             return
 
-        if self.state == STATES["A"] and self.tau > COEFF["Tau"]:
+        if self.state == State.A and self.tau > Coeff.Tau:
             self.t = 0
             self.tau = 0
             z = self.Z()
             if z:
-                self.state = STATES["S"]
+                self.state = State.S
             else:
-                self.state = STATES["R"]
+                self.state = State.R
             return
 
         return
 
-def loop(st_i, network, initial_nodes):
+def step(st_i, network, initial_nodes):
     """
     Step of the AMP model simulation
     :param st_i: step number
@@ -74,8 +74,8 @@ def loop(st_i, network, initial_nodes):
     """
     print("Step ", st_i)
 
-    visited = set()  # Node visited
-    to_visit = []  # Node to visit
+    visited = set()
+    to_visit = []
     to_visit.extend(list(initial_nodes))
 
     while to_visit:  # BFS
@@ -101,12 +101,12 @@ def amp_model(network, max_iter, infected_ids):
     source_neighbours = set()
     for id in infected_ids:
         source_neighbours = source_neighbours.union(set(network.G.neighbors(id)))
-        network.G.nodes[id]['state'] = STATES["I"]
-        network.G.nodes[id]['data'].state = STATES["I"]
+        network.G.nodes[id]['state'] = State.I
+        network.G.nodes[id]['data'].state = State.I
 
     # Run simulation
     for i in range(max_iter):
-        next = loop(i, next, source_neighbours)
+        next = step(i, next, source_neighbours)
         source_neighbours = [np.random.choice(list(network.G.nodes))]
         states_over_time.append(copy.deepcopy(next.G.copy(as_view=False)))
         # visualize(next.G)

@@ -3,7 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from abc import ABC
 from networkx.drawing.nx_agraph import graphviz_layout
-from constants import COLORMAP, STATES
+from constants import COLORMAP, State
 from graphic_utils import visualize
 from model import Device
 
@@ -66,11 +66,11 @@ class Network(ABC):
         for node_id in nodes:
             self.set_node(node_id, 'data', Device(node_id, self))
             if node_id in infected:
-                self.G.nodes[node_id]['state'] = STATES['I']
-                self.G.nodes[node_id]['data'].state = STATES['I']
+                self.G.nodes[node_id]['state'] = State.I
+                self.G.nodes[node_id]['data'].state = State.I
             else:
-                self.G.nodes[node_id]['state'] = STATES['S']
-                self.G.nodes[node_id]['data'].state = STATES['S']
+                self.G.nodes[node_id]['state'] = State.S
+                self.G.nodes[node_id]['data'].state = State.S
 
     def set_edges(self, key, value):
         """
