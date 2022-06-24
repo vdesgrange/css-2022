@@ -188,7 +188,7 @@ class Barabasi_Albert_Network(Network):
     """
     Barabasi-Albert scale-free network
     """
-    def __init__(self, n, m, alpha):
+    def __init__(self, n, m, p):
         super().__init__()
         self.n = n  # number of nodes
         self.m = m # number of edge to attach
@@ -196,7 +196,7 @@ class Barabasi_Albert_Network(Network):
 
         # Initialise Tree graph
         self.G = nx.barabasi_albert_graph(self.n, self.m)
-        self.random_assignment()
+        self.random_assignment(p)
         self.set_edges('flow', 1)
         self.N = self.G.number_of_nodes()  # initial number of nodes
 
