@@ -21,3 +21,5 @@ STATES = {
 }
 
 COLORMAP = dict([('S', 'yellow'), ('I','orange'), ('A', 'red'), ('R', 'blue')])
+
+NUM_COLORS = 20

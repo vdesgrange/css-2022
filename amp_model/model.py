@@ -70,6 +70,8 @@ def loop(st_i, network, initial_nodes):
     :param net: graph class
     :return:
     """
+    print("Step ", st_i)
+
     visited = set()  # Node visited
     to_visit = []  # Node to visit
     to_visit.extend(list(initial_nodes))
@@ -87,13 +89,14 @@ def loop(st_i, network, initial_nodes):
 
     return network
 
-def run(network, max_iter, infected_ids):
+def amp_model(network, max_iter, infected_ids):
     next = network
 
     # Set infected nodes
     source_neighbours = set()
     for id in infected_ids:
         source_neighbours = source_neighbours.union(set(network.G.neighbors(id)))
+        print(network.G.node[id])
         network.node[id]['class'].state = COEFF["I"]
 
     # Redistribute flow

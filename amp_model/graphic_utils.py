@@ -38,9 +38,8 @@ def show_state(states_over_time, name):
         gr = plt.cm.Greys
 
         node_color = [gr(L[id] / max(L)) for id in list(G.nodes)]
-        edge_color = [cm(1. * G.edges[it[0], it[1]]['flow'] / NUM_COLORS) for it in list(G.edges)]
 
-        nx.draw_networkx_edges(G, pos, edgelist=list(G.edges), edge_color=edge_color, edge_vmin=0., edge_vmax=1.)
+        nx.draw_networkx_edges(G, pos, edgelist=list(G.edges), edge_vmin=0., edge_vmax=1.)
         nx.draw_networkx_nodes(G, pos,
         nodelist=list(G.nodes),
         node_color=node_color,
@@ -64,12 +63,11 @@ def visualize(G):
     pos = graphviz_layout(G, prog="twopi", args="")
     cm = plt.cm.Reds_r
 
-    node_color = [COLORMAP[G.nodes[id]['bus_type']] for id in list(G.nodes)]
-    edge_color = [cm(1. * G.edges[it[0], it[1]]['flow'] / NUM_COLORS) for it in list(G.edges)]
+    node_color = [COLORMAP[G.nodes[id]['state']] for id in list(G.nodes)]
 
     plt.figure(figsize=(8, 8))
 
-    nx.draw_networkx_edges(G, pos, edgelist=list(G.edges), edge_color=edge_color, alpha=0.4, width=3)
+    nx.draw_networkx_edges(G, pos, edgelist=list(G.edges), alpha=0.4, width=3)
     nx.draw_networkx_nodes(G, pos,
                        nodelist=list(G.nodes),
                        node_color=node_color,
