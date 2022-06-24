@@ -3,8 +3,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from abc import ABC
 from networkx.drawing.nx_agraph import graphviz_layout
-from constants import COLORMAP
+from constants import COLORMAP, STATES
 from graphic_utils import visualize
+from model import Device
 
 
 class Network(ABC):
@@ -15,11 +16,8 @@ class Network(ABC):
         self.G = nx.Graph()
         self.predecessor = None
         self.min_distances = None
+        self.is_directed = lambda _ : False
         self.N = 0
-        self.E = np.Inf
-        self.L = None
-        self.C = None
-        self.alpha = 1  # tolerance parameter
 
     def floyd_warshall(self, key):
         """
@@ -66,10 +64,13 @@ class Network(ABC):
         infected = np.random.choice(nodes, round(len(nodes) * p))
 
         for node_id in nodes:
+            self.set_node(node_id, 'data', Device(node_id, self))
             if node_id in infected:
-                self.G.nodes[node_id]['state'] = 'I'
+                self.G.nodes[node_id]['state'] = STATES['I']
+                self.G.nodes[node_id]['data'].state = STATES['I']
             else:
-                self.G.nodes[node_id]['state'] = 'S'
+                self.G.nodes[node_id]['state'] = STATES['S']
+                self.G.nodes[node_id]['data'].state = STATES['S']
 
     def set_edges(self, key, value):
         """
@@ -111,15 +112,12 @@ class Network(ABC):
         curr_N = self.G.number_of_nodes()
         D = np.nansum(np.true_divide(1, self.min_distances, out=np.zeros_like(self.min_distances), where=self.min_distances != 0))
         self.E = (1 / (curr_N * (curr_N - 1))) * (D / 2)
-        self.L = self.get_num_paths(self.predecessor)
 
-        return self.predecessor, self.min_distances, self.E, self.L
+        return self.predecessor, self.min_distances, self.E
 
     def remove_node(self, id=-1):
         rnd_id = id if id != -1 else np.random.choice(list(self.G.nodes))
         self.G.remove_node(rnd_id)
-        self.L[rnd_id] = 0
-        self.C[rnd_id] = 0
 
 
 class Tree_Network(Network):
@@ -132,7 +130,6 @@ class Tree_Network(Network):
         self.c = branching_c
         self.node_id = branching_c + 2
         self.all_leaves = []
-        self.alpha = alpha
 
         # Initialise Tree graph
         self.G.add_node(0)
@@ -147,7 +144,6 @@ class Tree_Network(Network):
 
         # Get parameters
         self.get_attributes()
-        self.C = self.alpha * np.copy(self.L)
 
     def generate(self, leaves, h):
         """
@@ -196,7 +192,6 @@ class Barabasi_Albert_Network(Network):
         super().__init__()
         self.n = n  # number of nodes
         self.m = m # number of edge to attach
-        self.alpha = alpha
         self.all_leaves = []
 
         # Initialise Tree graph
@@ -207,7 +202,6 @@ class Barabasi_Albert_Network(Network):
 
         # Get parameters
         self.get_attributes()
-        self.C = self.alpha * np.copy(self.L)
 
     def visualize(self):
         """

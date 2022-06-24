@@ -1,6 +1,8 @@
 import numpy as np
+import copy
 
 from constants import COEFF, STATES
+from graphic_utils import visualize
 
 class Device:
     def __init__(self, id, network):
@@ -14,21 +16,21 @@ class Device:
         omega = 0
         neighbours = list(self.network.G.neighbors(self.id))
         for node_j in neighbours:
-            if node_j['class'].state == STATES["I"]:
+            if self.network.G.nodes[node_j]['data'].state == STATES["I"]:
                 omega += 1
 
-        return omega
+        return omega / len(neighbours)
 
     def X(self):
         omega = self.omega()
         p =[COEFF["H"] * omega, 1 - COEFF["H"] * omega]
-        return np.random.choice(1, None, p=p)
+        return np.random.choice([0, 1], None, p=p)
 
     def Y(self):
-        return np.random.choice(2, None, p=[COEFF["A"], COEFF["B"], 1 - COEFF["A"] - COEFF["B"]])
+        return np.random.choice([0, 1, 2], None, p=[COEFF["A"], COEFF["B"], 1 - COEFF["A"] - COEFF["B"]])
 
     def Z(self):
-        return np.random.choice(1, None, p=[COEFF["Rs"], 1 - COEFF["Rs"]])
+        return np.random.choice([0, 1], None, p=[COEFF["Rs"], 1 - COEFF["Rs"]])
 
 
     def step(self):
@@ -79,7 +81,7 @@ def loop(st_i, network, initial_nodes):
     while to_visit:  # BFS
         node_i = to_visit.pop(0)
         if node_i not in visited:
-            network.G.node[node_i]['class'].step()
+            network.G.nodes[node_i]['data'].step()
 
             visited.add(node_i)
             neighbours = list(network.G.neighbors(node_i))
@@ -90,18 +92,23 @@ def loop(st_i, network, initial_nodes):
     return network
 
 def amp_model(network, max_iter, infected_ids):
+    states_over_time = []
     next = network
+
+    states_over_time.append(next.G.copy(as_view=False))
 
     # Set infected nodes
     source_neighbours = set()
     for id in infected_ids:
         source_neighbours = source_neighbours.union(set(network.G.neighbors(id)))
-        print(network.G.node[id])
-        network.node[id]['class'].state = COEFF["I"]
+        network.G.nodes[id]['state'] = STATES["I"]
+        network.G.nodes[id]['data'].state = STATES["I"]
 
-    # Redistribute flow
+    # Run simulation
     for i in range(max_iter):
         next = loop(i, next, source_neighbours)
         source_neighbours = [np.random.choice(list(network.G.nodes))]
+        states_over_time.append(copy.deepcopy(next.G.copy(as_view=False)))
+        # visualize(next.G)
 
-    return
+    return states_over_time

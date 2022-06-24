@@ -1,6 +1,6 @@
 import numpy as np
 from networks import Barabasi_Albert_Network
-from graphic_utils import visualize 
+from graphic_utils import visualize, show_state
 from model import amp_model
 
 def experiment_1():
@@ -11,7 +11,8 @@ def experiment_1():
     bara = Barabasi_Albert_Network(20, 5, 1.01)
     visualize(bara.G)
     bara.set_edges('flow', 1)
-    amp_model(bara, 50, [0])
+    s = amp_model(bara, 50, [0])
+    show_state(s, 'example.gif')
 
 
 if __name__ == '__main__':

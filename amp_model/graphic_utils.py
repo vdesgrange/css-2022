@@ -22,24 +22,20 @@ def show_state(states_over_time, name):
     num_time_steps = len(states_over_time)
 
     # Create graph
-    G = states_over_time[0][0]
-    L = states_over_time[0][1]
+    G = states_over_time[0]
     pos = graphviz_layout(G, prog="twopi", args="")
     # set-up figure
     fig, ax = plt.subplots(figsize=(8, 8))
-    # im = plt.imshow(states_over_time[0], animated=True)
-    # plt.set_cmap('Greys')
 
     def update(i):
         ax.clear()
-        G = states_over_time[i][0]
-        L = states_over_time[i][1]
+        G = states_over_time[i]
         cm = plt.cm.Reds_r
         gr = plt.cm.Greys
 
-        node_color = [gr(L[id] / max(L)) for id in list(G.nodes)]
+        node_color = [COLORMAP[G.nodes[id]['data'].state] for id in list(G.nodes)]
 
-        nx.draw_networkx_edges(G, pos, edgelist=list(G.edges), edge_vmin=0., edge_vmax=1.)
+        nx.draw_networkx_edges(G, pos, edgelist=list(G.edges),  edge_vmin=0., edge_vmax=1.)
         nx.draw_networkx_nodes(G, pos,
         nodelist=list(G.nodes),
         node_color=node_color,
@@ -60,10 +56,10 @@ def visualize(G):
     """
     Simple visualization tool of the graph
     """
-    pos = graphviz_layout(G, prog="twopi", args="")
+    pos = graphviz_layout(G, prog="dot", args="")
     cm = plt.cm.Reds_r
 
-    node_color = [COLORMAP[G.nodes[id]['state']] for id in list(G.nodes)]
+    node_color = [COLORMAP[G.nodes[id]['data'].state] for id in list(G.nodes)]
 
     plt.figure(figsize=(8, 8))
 

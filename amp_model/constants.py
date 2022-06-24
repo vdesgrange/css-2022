@@ -20,6 +20,6 @@ STATES = {
     "R": 3
 }
 
-COLORMAP = dict([('S', 'yellow'), ('I','orange'), ('A', 'red'), ('R', 'blue')])
+COLORMAP = dict([(0, 'yellow'), (1,'orange'), (2, 'red'), (3, 'blue')])
 
 NUM_COLORS = 20
