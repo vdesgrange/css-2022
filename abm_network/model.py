@@ -5,6 +5,7 @@ import mesa
 from mesa.model import Model
 from .constants import State
 from .agents import MalwareAgent
+from .analysis import regenerate_network, get_clusters
 
 
 
@@ -30,6 +31,12 @@ def number_offline(model):
 
 def number_death(model):
     return number_state(model, State.DEATH)
+
+
+def number_clusters(model):
+    print("merde")
+    H = regenerate_network(model.G, model.grid)
+    return get_clusters(H)
 
 
 class VirusOnNetwork(Model):
@@ -78,6 +85,7 @@ class VirusOnNetwork(Model):
                 "Resistant": number_resistant,
                 "Offline": number_offline,
                 "Death": number_death,
+                "Clusters": number_clusters,
             }
         )
 
@@ -164,7 +172,6 @@ class VirusOnNetwork(Model):
         self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
-        # print(self.matrix)
 
     def run_model(self, n):
 

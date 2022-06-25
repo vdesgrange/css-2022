@@ -27,7 +27,6 @@ class MalwareAgent(Agent):
         self.death_chance = death_chance
 
     def try_to_notify_neighbors(self):
-
         """ if importance under 0.8, nodes can shut themselves down in order to prevent being infected """
 
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
@@ -37,8 +36,8 @@ class MalwareAgent(Agent):
             if agent.state is State.SUSCEPTIBLE
         ]
 
+        offline_probability = 0 # to check
         for a in susceptible_neighbors:
-            offline_probability = 0 # to check
             if a.importance < 0.8:
                 offline_probability = 1 - a.importance
             if self.random.random() < offline_probability:
@@ -54,7 +53,6 @@ class MalwareAgent(Agent):
         for a in susceptible_neighbors:
             if self.random.random() < self.malware_spread_chance:
                 a.state = State.INFECTED
-
 
     def try_be_susceptible(self):
         if self.random.random() < self.susceptible_chance:

@@ -3,18 +3,17 @@ from .model import VirusOnNetwork, State, number_death, number_infected, number_
 from mesa.visualization.modules import NetworkModule, ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import Slider, Choice
+from .constants import NODE_COLORMAP
 
 def network_portrayal(G):
     # The model ensures there is always 1 agent per node
 
     def node_color(agent):
-        return {State.DEATH: "#FFC0CB", State.OFFLINE: "#000000", State.INFECTED: "#FF0000", State.SUSCEPTIBLE: "#008000"}.get(
-            agent.state, "#808080"
-        )
+        return NODE_COLORMAP.get(agent.state, NODE_COLORMAP["Default"])
 
     def edge_color(agent1, agent2):
         if State.DEATH in (agent1.state, agent2.state):
-            return "#FFFFFF"
+            return "FFFFFFF"
         if State.RESISTANT in (agent1.state, agent2.state) or State.OFFLINE in (agent1.state, agent2.state):
             return "#FFFFFF"
         return "#e8e8e8"
@@ -50,9 +49,9 @@ def network_portrayal(G):
     return portrayal
 
 
-network = NetworkModule(network_portrayal, 500, 500)
+network = NetworkModule(network_portrayal, 1000, 1000)
 
-chart = ChartModule(
+phase_chart = ChartModule(
     [
         {"Label": "Infected", "Color": "#FF0000"},
         {"Label": "Susceptible", "Color": "#008000"},
@@ -62,6 +61,12 @@ chart = ChartModule(
     ]
 )
 
+cluster_chart = ChartModule(
+    [
+
+        {"Label": "Clusters", "Color": "#000000"},
+    ]
+)
 
 def get_resistant_susceptible_ratio(model):
     ratio = model.resistant_susceptible_ratio()
@@ -144,8 +149,11 @@ model_params = {
 
 server = ModularServer(
     VirusOnNetwork,
-    [network, get_resistant_susceptible_ratio, chart],
-    "Malware Propagtion in Complex Networks",
+    [network, 
+     get_resistant_susceptible_ratio, 
+     phase_chart,
+     cluster_chart],
+    "Malware propagation in complex networks",
     model_params,
 )
 server.port = 8521
