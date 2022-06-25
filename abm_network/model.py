@@ -1,15 +1,12 @@
 import math
-from enum import Enum
+import random
 import networkx as nx
 import mesa
 from mesa.model import Model
-from mesa.agent import Agent
+from .constants import State
+from .agents import MalwareAgent
 
 
-class State(Enum):
-    SUSCEPTIBLE = 0
-    INFECTED = 1
-    RESISTANT = 2
 
 def number_state(model, state):
     return sum(1 for a in model.grid.get_all_cell_contents() if a.state is state)
@@ -27,8 +24,15 @@ def number_resistant(model):
     return number_state(model, State.RESISTANT)
 
 
-class VirusOnNetwork(Model):
+def number_offline(model):
+    return number_state(model, State.OFFLINE)
 
+
+def number_death(model):
+    return number_state(model, State.DEATH)
+
+
+class VirusOnNetwork(Model):
     """A malware model with some number of agents"""
 
     def __init__(
@@ -41,15 +45,18 @@ class VirusOnNetwork(Model):
         malware_check_frequency=0.4,
         recovery_chance=0.3,
         gain_resistance_chance=0.5,
-        network = "erdos-renyi",
+        network="erdos-renyi",
+        matrix = [],
+        importance = random.uniform(0, 1),
+        susceptible_chance = 0.01,
+        death_chance = 0.01,
     ):
 
         self.num_nodes = num_nodes
         prob = avg_node_degree / self.num_nodes
         self.G = self.get_network(network, prob)
-        print(network)
-        print(self.get_network(network, prob))
         self.grid = mesa.space.NetworkGrid(self.G)
+        # print(self.grid)
         self.schedule = mesa.time.RandomActivation(self)
         self.initial_outbreak_size = (
             initial_outbreak_size if initial_outbreak_size <= num_nodes else num_nodes
@@ -59,18 +66,24 @@ class VirusOnNetwork(Model):
         self.malware_check_frequency = malware_check_frequency
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
+        self.matrix = matrix
+        self.importance = importance
+        self.susceptible_chance = susceptible_chance
+        self.death_chance = death_chance
 
         self.datacollector = mesa.DataCollector(
             {
                 "Infected": number_infected,
                 "Susceptible": number_susceptible,
                 "Resistant": number_resistant,
+                "Offline": number_offline,
+                "Death": number_death,
             }
         )
 
         # Create agents
         for i, node in enumerate(self.G.nodes()):
-            a = malwareAgent(
+            a = MalwareAgent(
                 i,
                 self,
                 State.SUSCEPTIBLE,
@@ -78,29 +91,33 @@ class VirusOnNetwork(Model):
                 self.malware_check_frequency,
                 self.recovery_chance,
                 self.gain_resistance_chance,
+                self.importance,
+                self.susceptible_chance,
+                self.death_chance
             )
             self.schedule.add(a)
-
             # Add the agent to the node
             self.grid.place_agent(a, node)
 
         # Infect some nodes
         infected_nodes = self.set_initial_outbreak(initial_outbreak_size, centrality, descending = True)
-        print(infected_nodes)
 
         for a in self.grid.get_cell_list_contents(infected_nodes):
-            a.state = State.INFECTED
+            if a != None:
+                a.state = State.INFECTED
 
         self.running = True
         self.datacollector.collect(self)
 
+        # self.print_infected()
+        # print([j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)])
+
 
     def get_network(self, network, prob):
-
-        if network == "erdos-renyi":
+        if network.lower() == "erdos-renyi":
             return nx.erdos_renyi_graph(n = self.num_nodes, p = prob)
 
-        elif network == "barabasi-albert":
+        elif network.lower() == "barabasi-albert":
             return nx.barabasi_albert_graph(n = self.num_nodes, m = 1)
 
         else:
@@ -108,8 +125,7 @@ class VirusOnNetwork(Model):
 
 
     def set_initial_outbreak(self, initial_outbreak_size, centrality = "random", descending = True):
-
-        """ 
+        """
         Set initial outbreak nodes
         centralities:
         - None (random)
@@ -144,68 +160,21 @@ class VirusOnNetwork(Model):
 
     def step(self):
         self.schedule.step()
-
+        row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
+        self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
+        # print(self.matrix)
 
     def run_model(self, n):
 
         for i in range(n):
             self.step()
 
+    def print_infected(self):
+        l1 = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
+        print(l1)
+        self.matrix.append(l1)
+        print(number_susceptible(self), number_infected(self), number_resistant(self))
 
-class malwareAgent(Agent):
 
-    def __init__(
-        self,
-        unique_id,
-        model,
-        initial_state,
-        malware_spread_chance,
-        malware_check_frequency,
-        recovery_chance,
-        gain_resistance_chance,
-    ):
-        super().__init__(unique_id, model)
-
-        self.state = initial_state
-        self.malware_spread_chance = malware_spread_chance
-        self.malware_check_frequency = malware_check_frequency
-        self.recovery_chance = recovery_chance
-        self.gain_resistance_chance = gain_resistance_chance
-
-    def try_to_infect_neighbors(self):
-        neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
-        susceptible_neighbors = [
-            agent
-            for agent in self.model.grid.get_cell_list_contents(neighbors_nodes)
-            if agent.state is State.SUSCEPTIBLE
-        ]
-        for a in susceptible_neighbors:
-            if self.random.random() < self.malware_spread_chance:
-                a.state = State.INFECTED
-
-    def try_gain_resistance(self):
-        if self.random.random() < self.gain_resistance_chance:
-            self.state = State.RESISTANT
-
-    def try_remove_infection(self):
-        # Try to remove
-        if self.random.random() < self.recovery_chance:
-            # Success
-            self.state = State.SUSCEPTIBLE
-            self.try_gain_resistance()
-        else:
-            # Failed
-            self.state = State.INFECTED
-
-    def try_check_situation(self):
-        if self.random.random() < self.malware_check_frequency:
-            # Checking...
-            if self.state is State.INFECTED:
-                self.try_remove_infection()
-
-    def step(self):
-        if self.state is State.INFECTED:
-            self.try_to_infect_neighbors()
-        self.try_check_situation()
