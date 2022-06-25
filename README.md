@@ -1,5 +1,5 @@
 # Complex Systems Simulation 2022
-Power grid
+Malware spreading along network
 
 install mesa (from source)
 
