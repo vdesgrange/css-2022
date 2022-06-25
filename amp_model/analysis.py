@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def time_analysis(timeline):
+    """
+    Analyse the timeline of infected devices
+    """
     healthy=[]
     exposed=[]
     infected=[]
@@ -26,3 +29,10 @@ def time_analysis(timeline):
     plt.show()
 
     return(healthy,exposed,recovered,infected,dead)
+
+
+def detect_cluster(timeline):
+    """
+    Detect clusters
+    """
+    pass

@@ -10,7 +10,7 @@ def experiment_1():
     :return:
     """
     bara = Barabasi_Albert_Network(50, 5, 0.02)
-    s = amp_model(bara, 50, [0])
+    s = amp_model(bara, 10, [0])
     show_state(s, 'example.gif')
     time_analysis(s)
 
