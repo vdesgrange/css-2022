@@ -34,7 +34,6 @@ def number_death(model):
 
 
 def number_clusters(model):
-    print("merde")
     H = regenerate_network(model.G, model.grid)
     return get_clusters(H)
 

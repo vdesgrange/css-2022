@@ -38,8 +38,12 @@ class MalwareAgent(Agent):
 
         offline_probability = 0 # to check
         for a in susceptible_neighbors:
-            if a.importance < 0.8:
-                offline_probability = 1 - a.importance
+            p_importance = a.importance
+            if callable(a.importance):
+                p_importance = a.importance(self.model)
+
+            if p_importance < 0.8:
+                offline_probability = 1 - p_importance
             if self.random.random() < offline_probability:
                 a.state = State.OFFLINE
 
@@ -51,35 +55,64 @@ class MalwareAgent(Agent):
             if agent.state is State.SUSCEPTIBLE
         ]
         for a in susceptible_neighbors:
-            if self.random.random() < self.malware_spread_chance:
+            p_spread = self.malware_spread_chance
+            if callable(self.malware_spread_chance):
+                p_spread = self.susceptible_chance(self.model)
+
+            if self.random.random() < p_spread:
                 a.state = State.INFECTED
 
     def try_be_susceptible(self):
-        if self.random.random() < self.susceptible_chance:
+        p_chance = self.susceptible_chance
+        if callable(self.susceptible_chance):
+            p_chance = self.susceptible_chance(self.model)
+
+        if self.random.random() < p_chance:
             self.state = State.SUSCEPTIBLE
 
     def try_to_reboot(self):
-        if self.random.random() < self.importance:
+        p_reboot = self.importance
+        if callable(self.importance):
+            p_reboot = self.importance(self.model)
+
+        if self.random.random() < p_reboot:
             self.state = State.SUSCEPTIBLE
 
     def try_gain_resistance(self):
-        if self.random.random() < self.gain_resistance_chance:
+        p_gain = self.gain_resistance_chance
+        if callable(self.gain_resistance_chance):
+            p_gain = self.gain_resistance_chance(self.model)
+
+        if self.random.random() < p_gain:
             self.state = State.RESISTANT
 
     def try_remove_infection(self):
         var = self.random.random()
+
+        p_r = self.recovery_chance
+        if callable(self.recovery_chance):
+            p_r = self.recovery_chance(self.model)
+
+        p_d = self.death_chance
+        if callable(self.death_chance):
+            p_d = self.death_chance(self.model)
+
         # Try to remove
-        if var < self.recovery_chance:
+        if var < p_r:
             # Success
             self.state = State.SUSCEPTIBLE
             self.try_gain_resistance()
-        elif var > 1 - self.death_chance:
+        elif var > 1 - p_d:
             self.state = State.DEATH
         else:
             self.state = State.INFECTED
 
     def try_check_situation(self):
-        if self.random.random() < self.malware_check_frequency:
+        p_freq = self.malware_check_frequency
+        if callable(self.malware_check_frequency):
+            p_freq = self.malware_check_frequency(self.model)
+
+        if self.random.random() < p_freq:
             # Checking...
             if self.state is State.INFECTED:
                 self.try_remove_infection()
