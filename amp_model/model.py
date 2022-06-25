@@ -65,6 +65,39 @@ class Device:
 
         return
 
+# class CustomDevice:
+#     def __init__(self, id, network, conf):
+#         self.id = id
+#         self.network = network
+#         self.state = State.S
+#         self.t = 0
+#         self.tau = 0
+#         self.conf = conf
+#
+#     def omega(self):
+#         omega = 0
+#         neighbours = list(self.network.G.neighbors(self.id))
+#         for node_j in neighbours:
+#             if self.network.G.nodes[node_j]['data'].state == State.I:
+#                 omega += 1
+#
+#         return omega / len(neighbours)
+#
+#     def X(self):
+#         omega = self.omega()
+#         p =[Coeff.H * omega, 1 - Coeff.H * omega]
+#         return np.random.choice([0, 1], None, p=p)
+#
+#     def step(self):
+#         self.t += 1
+#
+#         if self.t > self.tau:
+#             states = self.conf.transitions[self.state]
+#             neighbours = list(self.network.G.neighbors(self.id))
+#
+#             p = self.conf.p[self.id][self.state]
+#             self.state = np.random.choice(states, None, p=p)
+
 def step(st_i, network, initial_nodes):
     """
     Step of the AMP model simulation
@@ -91,7 +124,15 @@ def step(st_i, network, initial_nodes):
 
     return network
 
-def amp_model(network, max_iter, infected_ids):
+def amp_model(network, max_iter, infected_ids, data=None):
+    """
+    AMP model main simulation thread
+    :param network: networkx graph
+    :param max_iter: number of epochs
+    :param infected_ids: initial number of infected individual
+    :param configured rules
+    :return:
+    """
     states_over_time = []
     next = network
 
