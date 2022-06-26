@@ -107,3 +107,17 @@ functional_model_params = {
         description="Network Types (Random, Small-World, Scale Free)"
     )
 }
+
+analysis_params_a = {
+    "num_nodes": range(50, 200, 50),
+    "avg_node_degree": 3,
+    "initial_outbreak_size": range(1, 3, 1),
+    "malware_spread_chance": malware_spread_chance,
+    "malware_check_frequency":  malware_check_frequency,
+    "recovery_chance":  recovery_chance,
+    "gain_resistance_chance":  gain_resistance_chance,
+    "susceptible_chance":  susceptible_chance,
+    "death_chance":  death_chance,
+    "centrality": "random",
+    "network": "Barabasi-Albert"
+}

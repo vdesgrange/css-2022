@@ -86,7 +86,6 @@ class VirusOnNetwork(Model):
         importance = random.uniform(0, 1),
         susceptible_chance = 0.01,
         death_chance = 0.01,
-        max_step = Inf,
     ):
 
         self.num_nodes = num_nodes
