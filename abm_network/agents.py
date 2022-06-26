@@ -2,6 +2,7 @@ from mesa.agent import Agent
 from .constants import State
 
 class MalwareAgent(Agent):
+    
     def __init__(
         self,
         unique_id,
@@ -26,7 +27,9 @@ class MalwareAgent(Agent):
         self.susceptible_chance = susceptible_chance
         self.death_chance = death_chance
 
+
     def try_to_notify_neighbors(self):
+
         """ if importance under 0.8, nodes can shut themselves down in order to prevent being infected """
 
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
@@ -62,6 +65,7 @@ class MalwareAgent(Agent):
             if self.random.random() < p_spread:
                 a.state = State.INFECTED
 
+
     def try_be_susceptible(self):
         p_chance = self.susceptible_chance
         if callable(self.susceptible_chance):
@@ -70,60 +74,40 @@ class MalwareAgent(Agent):
         if self.random.random() < p_chance:
             self.state = State.SUSCEPTIBLE
 
-    def try_to_reboot(self):
-        p_reboot = self.importance
+
+    def update_software(self):
+
+        p_chance = self.importance
+
         if callable(self.importance):
-            p_reboot = self.importance(self.model)
+            p_chance = self.importance(self.model)
 
-        if self.random.random() < p_reboot:
-            self.state = State.SUSCEPTIBLE
-
-    def try_gain_resistance(self):
-        p_gain = self.gain_resistance_chance
-        if callable(self.gain_resistance_chance):
-            p_gain = self.gain_resistance_chance(self.model)
-
-        if self.random.random() < p_gain:
+        if self.state is not State.OFFLINE:
+            if self.random.random() < p_chance:
+                self.state = State.RESISTANT
+        else:
             self.state = State.RESISTANT
 
-    def try_remove_infection(self):
-        var = self.random.random()
-
-        p_r = self.recovery_chance
-        if callable(self.recovery_chance):
-            p_r = self.recovery_chance(self.model)
-
-        p_d = self.death_chance
-        if callable(self.death_chance):
-            p_d = self.death_chance(self.model)
-
-        # Try to remove
-        if var < p_r:
-            # Success
-            self.state = State.SUSCEPTIBLE
-            self.try_gain_resistance()
-        elif var > 1 - p_d:
-            self.state = State.DEATH
-        else:
-            self.state = State.INFECTED
 
     def try_check_situation(self):
         p_freq = self.malware_check_frequency
+
         if callable(self.malware_check_frequency):
             p_freq = self.malware_check_frequency(self.model)
 
         if self.random.random() < p_freq:
             # Checking...
             if self.state is State.INFECTED:
-                self.try_remove_infection()
-            if self.state is State.OFFLINE:
-                self.try_to_reboot()
-            if self.state is State.RESISTANT:
-                self.try_be_susceptible()
+                self.state = State.OFFLINE
+                # self.try_to_notify_neighbors()
+
 
     def step(self):
         if self.state is State.INFECTED:
             self.try_to_infect_neighbors()
-            self.try_to_notify_neighbors()
-        if self.state is not State.DEATH:
             self.try_check_situation()
+       
+        if self.model.antivirus:
+                self.update_software()
+
+

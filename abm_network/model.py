@@ -37,12 +37,14 @@ def number_clusters(model):
     H = regenerate_network(model.G, model.grid)
     return get_clusters(H)
 
+
 def clustering_coeff(model):
     H = regenerate_network(model.G, model.grid)
     return get_clustering_coefficient(H)
 
 
 class VirusOnNetwork(Model):
+
     """A malware model with some number of agents"""
 
     def __init__(
@@ -52,14 +54,15 @@ class VirusOnNetwork(Model):
         initial_outbreak_size=2,
         centrality="random",
         malware_spread_chance=0.4,
-        malware_check_frequency=0.4,
+        malware_check_frequency=0.2,
         recovery_chance=0.3,
         gain_resistance_chance=0.5,
         network="erdos-renyi",
         matrix = [],
         importance = random.uniform(0, 1),
-        susceptible_chance = 0.01,
-        death_chance = 0.01,
+        susceptible_chance = 0.1,
+        death_chance = 0.00,
+        antivirus = False,
     ):
 
         self.num_nodes = num_nodes
@@ -79,6 +82,7 @@ class VirusOnNetwork(Model):
         self.importance = importance
         self.susceptible_chance = susceptible_chance
         self.death_chance = death_chance
+        self.antivirus = antivirus
 
         self.datacollector = mesa.DataCollector(
             {
@@ -91,6 +95,7 @@ class VirusOnNetwork(Model):
                 "Ccoeff": clustering_coeff,
             }
         )
+        
 
         # Create agents
         for i, node in enumerate(self.G.nodes()):
@@ -110,12 +115,14 @@ class VirusOnNetwork(Model):
             # Add the agent to the node
             self.grid.place_agent(a, node)
 
+
         # Infect some nodes
         infected_nodes = self.set_initial_outbreak(initial_outbreak_size, centrality, descending = True)
 
         for a in self.grid.get_cell_list_contents(infected_nodes):
             if a != None:
                 a.state = State.INFECTED
+
 
         self.running = True
         self.datacollector.collect(self)
@@ -136,13 +143,17 @@ class VirusOnNetwork(Model):
 
 
     def set_initial_outbreak(self, initial_outbreak_size, centrality = "random", descending = True):
+        
         """
+
         Set initial outbreak nodes
         centralities:
+
         - None (random)
         - degree centrality
         - Closeness
         - Betweennes
+        
         """
 
         if centrality == 'random':
@@ -162,6 +173,7 @@ class VirusOnNetwork(Model):
 
 
     def resistant_susceptible_ratio(self):
+
         try:
             return number_state(self, State.RESISTANT) / number_state(
                 self, State.SUSCEPTIBLE
@@ -169,12 +181,43 @@ class VirusOnNetwork(Model):
         except ZeroDivisionError:
             return math.inf
 
+
+    def offline_infected_susceptible_ratio(self):
+
+        """ Ratio offline nodes vs susceptible + infected nodes """
+
+        try:
+            return (number_state(self, State.OFFLINE)) / (number_state(
+                self, State.SUSCEPTIBLE
+            ) + number_state(self, State.INFECTED))
+        except ZeroDivisionError:
+            return math.inf
+
+    
+    def try_create_antivirus(self):
+
+        if random.random() < self.offline_infected_susceptible_ratio():
+            self.antivirus = True
+
+    
+    def adopt_antivirus(self, nodes):
+
+        """ most computers will update software to adopt the antivirus """
+
+        for node in nodes:
+            if random.random() < node.importance:
+                node.state = State.RESISTANT
+
+
     def step(self):
         self.schedule.step()
         row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
         self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
+        self.try_create_antivirus()
+
+        print(self.antivirus)
 
     def run_model(self, n):
 
