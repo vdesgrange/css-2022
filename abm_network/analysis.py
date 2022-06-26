@@ -46,4 +46,9 @@ def time_analysis(timeline):
 
     return(healthy,exposed,recovered,infected,dead)
 
-
+def cellular_automata_analysis(matrix):
+    """
+    Plot the evolution of graph has a 2D matrix
+    :param matrix: t-by-n matrix representing agent state through time
+    """
+    pass
