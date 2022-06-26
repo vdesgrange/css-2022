@@ -10,34 +10,60 @@ from .analysis import regenerate_network, get_clusters, get_clustering_coefficie
 
 
 def number_state(model, state):
+    """
+    Return number of states
+    """
     return sum(1 for a in model.grid.get_all_cell_contents() if a.state is state)
 
 
 def number_infected(model):
+    """
+    Get number of INFECTED
+    """
     return number_state(model, State.INFECTED)
 
 
 def number_susceptible(model):
+    """
+    Get number of SUSCEPTIBLE
+    """
     return number_state(model, State.SUSCEPTIBLE)
 
 
 def number_resistant(model):
+    """
+    Get number of RESISTANT
+    """
     return number_state(model, State.RESISTANT)
 
 
 def number_offline(model):
+    """
+    Get number of OFFLINE
+    """
     return number_state(model, State.OFFLINE)
 
 
 def number_death(model):
+    """
+    Get number of DEATH
+    """
     return number_state(model, State.DEATH)
 
 
 def number_clusters(model):
+    """
+    Generate graph with offline/dead node removed 
+    then get number of components
+    """
     H = regenerate_network(model.G, model.grid)
     return get_clusters(H)
 
 def clustering_coeff(model):
+    """
+    Generate graph with offline/dead node removed 
+    then compute clustering coefficient
+    """
     H = regenerate_network(model.G, model.grid)
     return get_clustering_coefficient(H)
 
@@ -60,6 +86,7 @@ class VirusOnNetwork(Model):
         importance = random.uniform(0, 1),
         susceptible_chance = 0.01,
         death_chance = 0.01,
+        max_step = Inf,
     ):
 
         self.num_nodes = num_nodes
@@ -125,6 +152,12 @@ class VirusOnNetwork(Model):
 
 
     def get_network(self, network, prob):
+        """
+        Initialise network graph
+        :param network: network type
+        :param prob: connexion probability 
+        :return graph
+        """
         if network.lower() == "erdos-renyi":
             return nx.erdos_renyi_graph(n = self.num_nodes, p = prob)
 
@@ -170,6 +203,9 @@ class VirusOnNetwork(Model):
             return math.inf
 
     def step(self):
+        """
+        Mesa model step
+        """
         self.schedule.step()
         row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
         self.matrix.append(row)
@@ -177,14 +213,14 @@ class VirusOnNetwork(Model):
         self.datacollector.collect(self)
 
     def run_model(self, n):
-
-        for i in range(n):
+        """
+        Run model for fixed number of iteration
+        """
+        for _ in range(n):
             self.step()
 
     def print_infected(self):
-
         """ prints infected nodes in matrix form """
-
         l1 = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
         print(l1)
         self.matrix.append(l1)
