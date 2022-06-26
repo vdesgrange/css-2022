@@ -5,7 +5,7 @@ import mesa
 from mesa.model import Model
 from .constants import State
 from .agents import MalwareAgent
-from .analysis import regenerate_network, get_clusters
+from .analysis import regenerate_network, get_clusters, get_clustering_coefficient
 
 
 
@@ -37,6 +37,10 @@ def number_clusters(model):
     H = regenerate_network(model.G, model.grid)
     return get_clusters(H)
 
+def clustering_coeff(model):
+    H = regenerate_network(model.G, model.grid)
+    return get_clustering_coefficient(H)
+
 
 class VirusOnNetwork(Model):
     """A malware model with some number of agents"""
@@ -62,7 +66,6 @@ class VirusOnNetwork(Model):
         prob = avg_node_degree / self.num_nodes
         self.G = self.get_network(network, prob)
         self.grid = mesa.space.NetworkGrid(self.G)
-        # print(self.grid)
         self.schedule = mesa.time.RandomActivation(self)
         self.initial_outbreak_size = (
             initial_outbreak_size if initial_outbreak_size <= num_nodes else num_nodes
@@ -85,6 +88,7 @@ class VirusOnNetwork(Model):
                 "Offline": number_offline,
                 "Death": number_death,
                 "Clusters": number_clusters,
+                "Ccoeff": clustering_coeff,
             }
         )
 
@@ -178,6 +182,9 @@ class VirusOnNetwork(Model):
             self.step()
 
     def print_infected(self):
+
+        """ prints infected nodes in matrix form """
+
         l1 = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
         print(l1)
         self.matrix.append(l1)

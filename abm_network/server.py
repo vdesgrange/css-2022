@@ -69,6 +69,13 @@ cluster_chart = ChartModule(
     ]
 )
 
+cluster_coeff = ChartModule(
+    [
+
+        {"Label": "Ccoeff", "Color": "#000000"},
+    ]
+)
+
 def get_resistant_susceptible_ratio(model):
     ratio = model.resistant_susceptible_ratio()
     ratio_text = "&infin;" if ratio is math.inf else f"{ratio:.2f}"
@@ -87,7 +94,8 @@ server = ModularServer(
     [network, 
      get_resistant_susceptible_ratio, 
      phase_chart,
-     cluster_chart],
+     cluster_chart,
+     cluster_coeff],
     "Malware propagation in complex networks",
     model_params,
 )

@@ -20,6 +20,9 @@ def regenerate_network(G, grid):
 def get_clusters(G):
     return nx.number_connected_components(G)
 
+def get_clustering_coefficient(G):
+    return nx.average_clustering(G)
+
 def time_analysis(timeline):
     healthy=[]
     exposed=[]
@@ -47,6 +50,7 @@ def time_analysis(timeline):
     return(healthy,exposed,recovered,infected,dead)
 
 def cellular_automata_analysis(matrix):
+
     """
     Plot the evolution of graph has a 2D matrix
     :param matrix: t-by-n matrix representing agent state through time
