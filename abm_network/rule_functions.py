@@ -13,7 +13,7 @@ def gain_resistance_chance(model):
     return 0.5
 
 def importance(model):
-    return random.uniform(0, 1)
+    return lambda: random.uniform(0, 1)
 
 def susceptible_chance(model):
     return 0.01
