@@ -109,7 +109,7 @@ functional_model_params = {
 }
 
 analysis_params_a = {
-    "num_nodes": range(50, 200, 50),
+    "num_nodes": 50, # range(50, 200, 50),
     "avg_node_degree": 3,
     "initial_outbreak_size": range(1, 3, 1),
     "malware_spread_chance": malware_spread_chance,
