@@ -83,7 +83,7 @@ class VirusOnNetwork(Model):
         gain_resistance_chance=0.5,
         network="erdos-renyi",
         matrix = [],
-        importance = random.uniform(0, 1),
+        importance = (lambda : random.uniform(0, 1)),
         susceptible_chance = 0.01,
         death_chance = 0.01,
     ):
@@ -128,7 +128,7 @@ class VirusOnNetwork(Model):
                 self.malware_check_frequency,
                 self.recovery_chance,
                 self.gain_resistance_chance,
-                self.importance,
+                self.importance(),
                 self.susceptible_chance,
                 self.death_chance
             )
@@ -191,6 +191,9 @@ class VirusOnNetwork(Model):
         elif centrality == "betweenness":
             betweenness = sorted(nx.betweenness_centrality(self.G).items(), key=lambda x:x[1], reverse = descending)
             return [i[0] for i in betweenness][:initial_outbreak_size]
+
+        elif centrality == "last":
+            return self.G.nodes[initial_outbreak_size:]
 
 
     def resistant_susceptible_ratio(self):
