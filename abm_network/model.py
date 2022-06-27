@@ -153,7 +153,7 @@ class VirusOnNetwork(Model):
         - degree centrality
         - Closeness
         - Betweennes
-        
+
         """
 
         if centrality == 'random':
@@ -196,17 +196,8 @@ class VirusOnNetwork(Model):
     
     def try_create_antivirus(self):
 
-        if random.random() < self.offline_infected_susceptible_ratio():
+        if self.offline_infected_susceptible_ratio() > 0.5:
             self.antivirus = True
-
-    
-    def adopt_antivirus(self, nodes):
-
-        """ most computers will update software to adopt the antivirus """
-
-        for node in nodes:
-            if random.random() < node.importance:
-                node.state = State.RESISTANT
 
 
     def step(self):

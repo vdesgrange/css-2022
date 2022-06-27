@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import copy
 from .constants import State
+import math
 
 def regenerate_network(G, grid):
     H = copy.deepcopy(G)
@@ -21,7 +22,11 @@ def get_clusters(G):
     return nx.number_connected_components(G)
 
 def get_clustering_coefficient(G):
-    return nx.average_clustering(G)
+    
+    try: 
+        return nx.average_clustering(G)
+    except ZeroDivisionError:
+            return math.inf
 
 def time_analysis(timeline):
     healthy=[]

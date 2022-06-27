@@ -77,15 +77,13 @@ class MalwareAgent(Agent):
 
     def update_software(self):
 
-        p_chance = self.importance
+        if self.state is State.OFFLINE:
+            self.state = State.RESISTANT
+            return
 
-        if callable(self.importance):
-            p_chance = self.importance(self.model)
-
-        if self.state is not State.OFFLINE:
-            if self.random.random() < p_chance:
-                self.state = State.RESISTANT
-        else:
+        p_chance = 0.5
+        
+        if self.random.random() < p_chance:
             self.state = State.RESISTANT
 
 
