@@ -7,7 +7,7 @@ from .constants import State
 from .agents import MalwareAgent
 from .analysis import regenerate_network, get_clusters, get_clustering_coefficient
 from networkx import path_graph, random_layout
-
+import copy
 
 
 def number_state(model, state):
@@ -57,6 +57,7 @@ def number_clusters(model):
     Generate graph with offline/dead node removed 
     then get number of components
     """
+
     H = regenerate_network(model.G, model.grid)
     return get_clusters(H)
 
@@ -65,6 +66,7 @@ def clustering_coeff(model):
     Generate graph with offline/dead node removed 
     then compute clustering coefficient
     """
+
     H = regenerate_network(model.G, model.grid)
     return get_clustering_coefficient(H)
 
@@ -202,6 +204,7 @@ class VirusOnNetwork(Model):
         except ZeroDivisionError:
             return math.inf
 
+
     def step(self):
         """
         Mesa model step
@@ -211,6 +214,8 @@ class VirusOnNetwork(Model):
         # self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
+        print(regenerate_network(self.G, self.grid))
+
 
     def run_model(self, n):
 

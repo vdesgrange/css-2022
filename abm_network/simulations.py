@@ -4,18 +4,34 @@ from .parameters import analysis_params_a
 import pandas as pd
 import math
 import time
+from .rule_functions import *
 
-iterations = 20
-max_steps = 30
+def input_sim(iterations = 1, max_steps = 50):
+
+    return iterations, max_steps
+
+targeted_ba = {
+    "num_nodes": [1000],
+    "avg_node_degree": 3,
+    "initial_outbreak_size": 1,
+    "malware_spread_chance": malware_spread_chance,
+    "malware_check_frequency":  malware_check_frequency,
+    "recovery_chance":  recovery_chance,
+    "gain_resistance_chance":  gain_resistance_chance,
+    "susceptible_chance":  susceptible_chance,
+    "death_chance":  death_chance,
+    "centrality": "random",
+    "network": "Barabasi-Albert"
+}
+
 
 def experiment_a():
 
-    global iterations 
-    global max_steps
+    iterations, max_steps = input_sim(1, 100)
 
     results = mesa.batch_run(
         VirusOnNetwork,
-        parameters=analysis_params_a,
+        parameters= targeted_ba,
         iterations = iterations,
         max_steps = max_steps,
         number_processes=1,
@@ -23,7 +39,44 @@ def experiment_a():
         display_progress=True,
     )
 
-    return results
+    return max_steps, iterations, results
+
+
+def simulate_barabasi_albert():
+
+    start = time.time()
+    max_steps, iterations, results = experiment_a()
+
+    res = {}
+    off_inf_dea = []
+
+    for i, result in enumerate(results):
+        
+        # if result['Step'] is not max_steps:
+        #     continue
+
+        nodes = result['num_nodes']
+        print(f"Step: {i}")
+        print(nodes, result['Resistant'])
+        print(nodes, result['Infected'])
+        print(nodes, result['Susceptible'])
+        print(nodes, result['Offline'])
+
+        off_inf_dea.append(int(result['Infected']) + int(result['Offline'] + int(result['Death'])))
+
+        if nodes not in res.keys():
+            res[nodes] = 0
+        
+        infected_offline_nodes = (int(result['Infected']) + int(result['Offline']))/ int(nodes) / iterations
+        res[nodes] += infected_offline_nodes
+
+    print(res)
+    print(f"Max spread at some point is {max(off_inf_dea)}")
+    print(off_inf_dea)
+    # print(logres)
+    end = time.time() - start
+    print(end)
+    return max(off_inf_dea)
 
 
 def simulations():
@@ -63,25 +116,3 @@ def simulations():
     # print(logres)
     end = time.time() - start
     print(end)
-
-
-
-    #     # print(result['Susceptible'])
-    #     # print(result['Resistant'])
-    #     # print(result['Offline'])
-    #     # print(result['Death'])
-
-
-    # for i in ids.keys():
-    #     _sum = 0
-    #     for j in ids[i]:
-    #         _sum += res[j]
-
-    #     final =  math.log((_sum/(iterations*len(ids[i]))))
-    #     # print(math.log(res['Ccoeff']))
-    #     print(math.log(i), math.log(_sum/(iterations*len(ids[i]))))
-    #     print(iterations, len(ids[i]))
-    #     print(final)
-    # # print(res)
-    # print(ids)
-

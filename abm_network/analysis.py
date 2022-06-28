@@ -5,16 +5,18 @@ import copy
 from .constants import State
 
 def regenerate_network(G, grid):
+
     H = copy.deepcopy(G)
+    print(G)
     for u in grid.get_all_cell_contents():
-        if u.state == (State.RESISTANT or State.DEATH or State.OFFLINE):
-            H.remove_node(u.unique_id)
+        if u.state in [State.DEATH, State.OFFLINE]:
+            # H.remove_edge(u.unique_id, v)
             # Doing the same (+ one loop) depends if you want to also consider individual nodes.
-            # for v in grid.get_neighbors(u.unique_id, False):
-            #     try:
-            #         H.remove_edge(u.unique_id, v)
-            #     except nx.NetworkXError:
-            #         pass
+            for v in grid.get_neighbors(u.unique_id, False):
+                try:
+                    H.remove_edge(u.unique_id, v)
+                except nx.NetworkXError:
+                    pass
     return H
 
 def get_clusters(G):
