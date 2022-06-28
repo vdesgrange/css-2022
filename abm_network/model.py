@@ -5,7 +5,7 @@ import mesa
 from mesa.model import Model
 from .constants import State
 from .agents import MalwareAgent
-from .analysis import regenerate_network, get_clusters, get_clustering_coefficient
+from .analysis import *
 
 
 
@@ -67,6 +67,11 @@ def clustering_coeff(model):
     H = regenerate_network(model.G, model.grid)
     return get_clustering_coefficient(H)
 
+def cluster_distribution(model):
+    H = regenerate_network(model.G, model.grid)
+    return analyse_clusters(H)
+
+
 
 class VirusOnNetwork(Model):
     """A malware model with some number of agents"""
@@ -116,6 +121,7 @@ class VirusOnNetwork(Model):
                 "Death": number_death,
                 "Clusters": number_clusters,
                 "Ccoeff": clustering_coeff,
+                "Cluster_distribution": cluster_distribution,
             }
         )
 
@@ -193,9 +199,7 @@ class VirusOnNetwork(Model):
             betweenness = sorted(nx.betweenness_centrality(self.G).items(), key=lambda x:x[1], reverse = descending)
             return [i[0] for i in betweenness][:initial_outbreak_size]
 
-        elif centrality == "last":
-            return self.G.nodes[initial_outbreak_size:]
-
+        return []
 
     def resistant_susceptible_ratio(self):
         try:

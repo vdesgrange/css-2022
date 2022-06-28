@@ -4,7 +4,7 @@ from mesa.visualization.modules import NetworkModule, ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import Slider, Choice
 from .constants import NODE_COLORMAP
-from .parameters import model_params, functional_model_params
+from .parameters import model_params, functional_model_params, cluster_analysis_params
 
 def network_portrayal(G):
     # The model ensures there is always 1 agent per node
@@ -15,14 +15,16 @@ def network_portrayal(G):
     def edge_color(agent1, agent2):
         if State.DEATH in (agent1.state, agent2.state):
             return "FFFFFFF"
-        if State.RESISTANT in (agent1.state, agent2.state) or State.OFFLINE in (agent1.state, agent2.state):
+        if State.OFFLINE in (agent1.state, agent2.state):
             return "#FFFFFF"
+        if State.RESISTANT in (agent1.state, agent2.state): 
+            return "#F4F9F9"
         return "#e8e8e8"
 
     def edge_width(agent1, agent2):
         if State.RESISTANT in (agent1.state, agent2.state):
-            return 3
-        return 2
+            return 2
+        return 2.5
 
     def get_agents(source, target):
         return G.nodes[source]["agent"][0], G.nodes[target]["agent"][0]

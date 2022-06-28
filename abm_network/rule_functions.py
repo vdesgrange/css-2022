@@ -20,7 +20,6 @@ def importance_degree():
     f = lambda a : 0.6 * rand + 0.4 * (a.model.G.degree[a.unique_id] / a.model.k_max)
     return f
 
-
 def susceptible_chance(model):
     return 0.01
 

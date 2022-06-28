@@ -7,7 +7,7 @@ from .constants import State
 def regenerate_network(G, grid):
     H = copy.deepcopy(G)
     for u in grid.get_all_cell_contents():
-        if u.state == (State.RESISTANT or State.DEATH or State.OFFLINE):
+        if u.state == (State.DEATH or State.OFFLINE): # State.RESISTANT
             H.remove_node(u.unique_id)
             # Doing the same (+ one loop) depends if you want to also consider individual nodes.
             # for v in grid.get_neighbors(u.unique_id, False):
@@ -15,6 +15,7 @@ def regenerate_network(G, grid):
             #         H.remove_edge(u.unique_id, v)
             #     except nx.NetworkXError:
             #         pass
+    print(nx.number_connected_components(H))
     return H
 
 def get_clusters(G):
@@ -35,10 +36,19 @@ def get_degree_distribution(G):
 
 def analyse_clusters(G):
     H = nx.connected_components(G)
-    cc = [len(c) for c in sorted(H, key=len, reverse=True)]
-    largest_cc = max(H, key=len)
-    hist_cc = np.histogram(np.array(cc))
-    return (hist_cc, largest_cc)
+    hist_cc = []
+    min_cc = 0
+    max_cc = 0
+
+    if H is not None:
+        cc = [len(c) for c in sorted(H, key=len, reverse=True)]
+        min_cc = min(cc)
+        max_cc = max(cc)
+        bins = np.arange(min_cc, max_cc + 2, 1)
+        hist_cc = np.histogram(np.array(cc), bins=bins)
+        print(hist_cc)
+
+    return (hist_cc, (min_cc, max_cc))
 
 def time_analysis(timeline):
     healthy=[]
