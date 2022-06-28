@@ -94,6 +94,7 @@ functional_model_params = {
     "gain_resistance_chance":  gain_resistance_chance,
     "susceptible_chance":  susceptible_chance,
     "death_chance":  death_chance,
+    "importance": importance_degree,
     "centrality": Choice(
         "Infected Node Centrality",
         'random',
@@ -120,4 +121,20 @@ analysis_params_a = {
     "death_chance":  death_chance,
     "centrality": "closeness",
     "network": "Erdos-Renyi"
+}
+
+cluster_analysis_params = {
+    "num_nodes": 50,
+    "avg_node_degree": 3,
+    "initial_outbreak_size": 3,
+    "centrality": "last",
+    "malware_spread_chance": malware_spread_chance,
+    "malware_check_frequency":  malware_check_frequency,
+    "recovery_chance":  recovery_chance,
+    "gain_resistance_chance":  gain_resistance_chance,
+    "importance": importance_degree,
+    "network": "Barabasi-Albert",
+    "matrix": [],
+    "susceptible_chance":  susceptible_chance,
+    "death_chance":  death_chance,
 }

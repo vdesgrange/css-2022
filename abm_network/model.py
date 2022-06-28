@@ -83,7 +83,7 @@ class VirusOnNetwork(Model):
         gain_resistance_chance=0.5,
         network="erdos-renyi",
         matrix = [],
-        importance = (lambda : random.uniform(0, 1)),
+        importance = lambda : random.uniform(0, 1),
         susceptible_chance = 0.01,
         death_chance = 0.01,
     ):
@@ -91,6 +91,7 @@ class VirusOnNetwork(Model):
         self.num_nodes = num_nodes
         prob = avg_node_degree / self.num_nodes
         self.G = self.get_network(network, prob)
+        self.k_max = max([d for _, d in self.G.degree()])
         self.grid = mesa.space.NetworkGrid(self.G)
         self.schedule = mesa.time.RandomActivation(self)
         self.initial_outbreak_size = (

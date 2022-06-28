@@ -22,9 +22,13 @@ class MalwareAgent(Agent):
         self.malware_check_frequency = malware_check_frequency
         self.recovery_chance = recovery_chance
         self.gain_resistance_chance = gain_resistance_chance
-        self.importance = importance
         self.susceptible_chance = susceptible_chance
         self.death_chance = death_chance
+        self.importance_fn = importance
+
+        self.importance = importance
+        if callable(importance):
+            self.importance = self.importance_fn(self)
 
     def try_to_notify_neighbors(self):
         """ if importance under 0.8, nodes can shut themselves down in order to prevent being infected """
@@ -39,8 +43,9 @@ class MalwareAgent(Agent):
         offline_probability = 0 # to check
         for a in susceptible_neighbors:
             p_importance = a.importance
-            if callable(a.importance):
-                p_importance = a.importance(self.model)
+            if callable(a.importance_fn):
+                p_importance = a.importance_fn(a)
+                a.importance = p_importance
 
             if p_importance < 0.8:
                 offline_probability = 1 - p_importance
