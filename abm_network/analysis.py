@@ -23,6 +23,23 @@ def get_clusters(G):
 def get_clustering_coefficient(G):
     return nx.average_clustering(G)
 
+def get_communities(G):
+    # cc = nx.girvan_newman(G)
+    # return cc
+    pass
+
+def get_degree_distribution(G):
+    k = G.degree()
+    hist = np.histogram(np.array([y for _,y in k]))
+    return hist
+
+def analyse_clusters(G):
+    H = nx.connected_components(G)
+    cc = [len(c) for c in sorted(H, key=len, reverse=True)]
+    largest_cc = max(H, key=len)
+    hist_cc = np.histogram(np.array(cc))
+    return (hist_cc, largest_cc)
+
 def time_analysis(timeline):
     healthy=[]
     exposed=[]
@@ -57,8 +74,12 @@ def cellular_automata_analysis(matrix):
     pass
 
 def shannon_entropy():
+    """
+    To adapt for discrete variable
+    """
+    pk = 0
     H = 0
-    for p in Pk:
+    for _, p in enumerate(pk):
         if p > 0:
             H -= p * np.log(p)
 

@@ -97,6 +97,6 @@ server = ModularServer(
      cluster_chart,
      cluster_coeff],
     "Malware propagation in complex networks",
-    model_params,
+    functional_model_params,
 )
 server.port = 8521
