@@ -1,5 +1,7 @@
+
 from mesa.agent import Agent
 from .constants import State
+flag = False
 
 class MalwareAgent(Agent):
     
@@ -107,5 +109,3 @@ class MalwareAgent(Agent):
        
         if self.model.antivirus:
                 self.update_software()
-
-
