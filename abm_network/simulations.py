@@ -25,6 +25,7 @@ def experiment_a():
 
     return results
 
+
 def simulations():
 
     start = time.time()
@@ -54,7 +55,7 @@ def simulations():
         #     logres[lognodes] = 0
         
         infected_offline_nodes = (int(result['Infected']) + int(result['Offline']))/ int(nodes) / iterations
-        print(int(result['Infected']) + int(result['Offline']), int(nodes))
+        # print(int(result['Infected']) + int(result['Offline']), int(nodes))
         res[nodes] += infected_offline_nodes
         # logres[lognodes] += math.log(infected_offline_nodes)
 

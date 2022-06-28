@@ -6,6 +6,7 @@ from mesa.model import Model
 from .constants import State
 from .agents import MalwareAgent
 from .analysis import regenerate_network, get_clusters, get_clustering_coefficient
+from networkx import path_graph, random_layout
 
 
 
@@ -158,13 +159,13 @@ class VirusOnNetwork(Model):
         :return graph
         """
         if network.lower() == "erdos-renyi":
-            return nx.erdos_renyi_graph(n = self.num_nodes, p = prob)
+            return nx.erdos_renyi_graph(n = self.num_nodes, p = prob, seed = 42)
 
         elif network.lower() == "barabasi-albert":
-            return nx.barabasi_albert_graph(n = self.num_nodes, m = 1)
+            return nx.barabasi_albert_graph(n = self.num_nodes, m = 1, seed = 42)
 
         else:
-            return nx.watts_strogatz_graph(n = self.num_nodes, k = int(0.2*(self.num_nodes)), p = prob, seed = None)
+            return nx.watts_strogatz_graph(n = self.num_nodes, k = int(0.2*(self.num_nodes)), p = prob, seed = 42)
 
 
     def set_initial_outbreak(self, initial_outbreak_size, centrality = "random", descending = True):
@@ -192,9 +193,6 @@ class VirusOnNetwork(Model):
             betweenness = sorted(nx.betweenness_centrality(self.G).items(), key=lambda x:x[1], reverse = descending)
             return [i[0] for i in betweenness][:initial_outbreak_size]
 
-        elif centrality == "last":
-            return self.G.nodes[initial_outbreak_size:]
-
 
     def resistant_susceptible_ratio(self):
         try:
@@ -215,9 +213,11 @@ class VirusOnNetwork(Model):
         self.datacollector.collect(self)
 
     def run_model(self, n):
+
         """
         Run model for fixed number of iteration
         """
+        
         for _ in range(n):
             self.step()
 
