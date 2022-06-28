@@ -206,8 +206,8 @@ class VirusOnNetwork(Model):
         Mesa model step
         """
         self.schedule.step()
-        row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
-        self.matrix.append(row)
+        # row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
+        # self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
 

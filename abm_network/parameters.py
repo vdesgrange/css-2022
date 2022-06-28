@@ -109,15 +109,15 @@ functional_model_params = {
 }
 
 analysis_params_a = {
-    "num_nodes": 50, # range(50, 200, 50),
+    "num_nodes": [10, 100, 1000],
     "avg_node_degree": 3,
-    "initial_outbreak_size": range(1, 3, 1),
+    "initial_outbreak_size": 1,
     "malware_spread_chance": malware_spread_chance,
     "malware_check_frequency":  malware_check_frequency,
     "recovery_chance":  recovery_chance,
     "gain_resistance_chance":  gain_resistance_chance,
     "susceptible_chance":  susceptible_chance,
     "death_chance":  death_chance,
-    "centrality": "random",
-    "network": "Barabasi-Albert"
+    "centrality": "closeness",
+    "network": "Erdos-Renyi"
 }
