@@ -7,15 +7,14 @@ from .constants import State
 def regenerate_network(G, grid):
     H = copy.deepcopy(G)
     for u in grid.get_all_cell_contents():
-        if u.state == (State.DEATH or State.OFFLINE): # State.RESISTANT
-            H.remove_node(u.unique_id)
+        if (u.state == State.DEATH or u.state == State.OFFLINE): # State.RESISTANT
+            # H.remove_node(u.unique_id)
             # Doing the same (+ one loop) depends if you want to also consider individual nodes.
-            # for v in grid.get_neighbors(u.unique_id, False):
-            #     try:
-            #         H.remove_edge(u.unique_id, v)
-            #     except nx.NetworkXError:
-            #         pass
-    print(nx.number_connected_components(H))
+            for v in grid.get_neighbors(u.unique_id, False):
+                try:
+                    H.remove_edge(u.unique_id, v)
+                except nx.NetworkXError:
+                    pass
     return H
 
 def get_clusters(G):
@@ -46,7 +45,6 @@ def analyse_clusters(G):
         max_cc = max(cc)
         bins = np.arange(min_cc, max_cc + 2, 1)
         hist_cc = np.histogram(np.array(cc), bins=bins)
-        print(hist_cc)
 
     return (hist_cc, (min_cc, max_cc))
 
