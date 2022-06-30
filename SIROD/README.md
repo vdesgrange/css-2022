@@ -43,11 +43,11 @@ http://127.0.0.1:8521/
 
 ## Architecture
 
-agents.py - Mesa malware agent class
-analysis.py - Functions used to aggregate model data for further analysis
-constants.py - Constants used in the model
-model.py - Mesa model class
-parameters.py - Parameters used by Mesa server
-rule_functions.py - Functions to be used for model/agent probabilities
-server.py - Mesa server
-simulations.py - Example of script for model simulation analysis
+- agents.py - Mesa malware agent class
+- analysis.py - Functions used to aggregate model data for further analysis
+- constants.py - Constants used in the model
+- model.py - Mesa model class
+- parameters.py - Parameters used by Mesa server
+- rule_functions.py - Functions to be used for model/agent probabilities
+- server.py - Mesa server
+- simulations.py - Example of script for model simulation analysis
