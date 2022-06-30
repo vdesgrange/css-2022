@@ -2,17 +2,28 @@ import math
 from .model import VirusOnNetwork, State, number_death, number_infected, number_offline
 from mesa.visualization.modules import NetworkModule, ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
-from mesa.visualization.UserParam import Slider, Choice
 from .constants import NODE_COLORMAP
-from .parameters import model_params, functional_model_params, cluster_analysis_params
+from .parameters import functional_model_params
 
 def network_portrayal(G):
-    # The model ensures there is always 1 agent per node
-
+    """
+    Networt portrayal provides set of function used for visualization of the MESA NetworkGrid.
+    The model ensures there is always 1 agent per node
+    :param G: graph
+    """
     def node_color(agent):
+        """
+        Get node color based on agent state
+        :param agent
+        """
         return NODE_COLORMAP.get(agent.state, NODE_COLORMAP["Default"])
 
     def edge_color(agent1, agent2):
+        """
+        Get edge color based on agent state
+        :param agent1: source agent
+        :param agent2: target agent
+        """
         if State.DEATH in (agent1.state, agent2.state):
             return "FFFFFFF"
         if State.OFFLINE in (agent1.state, agent2.state):
@@ -22,11 +33,17 @@ def network_portrayal(G):
         return "#e8e8e8"
 
     def edge_width(agent1, agent2):
+        """
+        Get edge width based on agent state
+        :param agent1: source agent
+        :param agent2: target agent
+        """
         if State.RESISTANT in (agent1.state, agent2.state):
             return 2
         return 2.5
 
     def get_agents(source, target):
+        """ Get agents per source and target """
         return G.nodes[source]["agent"][0], G.nodes[target]["agent"][0]
 
     portrayal = dict()
@@ -54,6 +71,7 @@ def network_portrayal(G):
 
 network = NetworkModule(network_portrayal, 1000, 1000)
 
+# Phase charts
 phase_chart = ChartModule(
     [
         {"Label": "Infected", "Color": "#FF0000"},
@@ -64,13 +82,14 @@ phase_chart = ChartModule(
     ]
 )
 
+# Number of clusters in network charts
 cluster_chart = ChartModule(
     [
-
         {"Label": "Clusters", "Color": "#000000"},
     ]
 )
 
+# Network cluster coefficient charts
 cluster_coeff = ChartModule(
     [
 
@@ -90,11 +109,11 @@ def get_resistant_susceptible_ratio(model):
     )
 
 
-
+# Launch server
 server = ModularServer(
     VirusOnNetwork,
-    [network, 
-     get_resistant_susceptible_ratio, 
+    [network,
+     get_resistant_susceptible_ratio,
      phase_chart,
      cluster_chart,
      cluster_coeff],
