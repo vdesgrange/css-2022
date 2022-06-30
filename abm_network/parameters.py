@@ -1,6 +1,10 @@
 from mesa.visualization.UserParam import Slider, Choice
 from .rule_functions import *
 
+"""
+parameters.py provides parameters dictionnary to be used by MESA server when running ABM model simulation.
+"""
+
 model_params = {
     "num_nodes":  Slider(
         "Number of agents",
@@ -121,6 +125,10 @@ functional_model_params = {
         description="Probability that a recovered agent will become "
         "resistant to this virus in the future",
     ),
+    "malware_spread_chance": malware_spread_chance,
+    "malware_check_frequency":  malware_check_frequency,
+    "recovery_chance":  recovery_chance,
+    "gain_resistance_chance":  gain_resistance_chance,
     "susceptible_chance":  susceptible_chance,
     "death_chance":  death_chance,
     "importance": importance_degree,
