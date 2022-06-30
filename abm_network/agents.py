@@ -31,7 +31,9 @@ class MalwareAgent(Agent):
             self.importance = self.importance_fn(self)
 
     def try_to_notify_neighbors(self):
-        """ if importance under 0.8, nodes can shut themselves down in order to prevent being infected """
+        """
+        if importance under 0.8, nodes can shut themselves down in order to prevent being infected 
+        """
 
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
         susceptible_neighbors = [
@@ -53,6 +55,9 @@ class MalwareAgent(Agent):
                 a.state = State.OFFLINE
 
     def try_to_infect_neighbors(self):
+        """
+        Try to infect neighbors nodes.
+        """
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
         susceptible_neighbors = [
             agent
@@ -68,6 +73,9 @@ class MalwareAgent(Agent):
                 a.state = State.INFECTED
 
     def try_be_susceptible(self):
+        """
+        Try to become susceptible
+        """
         p_chance = self.susceptible_chance
         if callable(self.susceptible_chance):
             p_chance = self.susceptible_chance(self.model)
@@ -76,6 +84,9 @@ class MalwareAgent(Agent):
             self.state = State.SUSCEPTIBLE
 
     def try_to_reboot(self):
+        """
+        Try to switch from offline to online state
+        """
         p_reboot = self.importance
         if callable(self.importance):
             p_reboot = self.importance(self.model)
@@ -84,6 +95,9 @@ class MalwareAgent(Agent):
             self.state = State.SUSCEPTIBLE
 
     def try_gain_resistance(self):
+        """
+        Try to gain resistance to virus. (Update software ie. log4j)
+        """
         p_gain = self.gain_resistance_chance
         if callable(self.gain_resistance_chance):
             p_gain = self.gain_resistance_chance(self.model)
@@ -92,6 +106,10 @@ class MalwareAgent(Agent):
             self.state = State.RESISTANT
 
     def try_remove_infection(self):
+        """
+        Try to remove infection.
+        Become susceptible (then try to become resistant) or become dead.
+        """
         var = self.random.random()
 
         p_r = self.recovery_chance
@@ -113,6 +131,9 @@ class MalwareAgent(Agent):
             self.state = State.INFECTED
 
     def try_check_situation(self):
+        """
+        Try to act with regards to current agent state
+        """
         p_freq = self.malware_check_frequency
         if callable(self.malware_check_frequency):
             p_freq = self.malware_check_frequency(self.model)
