@@ -34,7 +34,7 @@ results = mesa.batch_run(
 )
 ```
 
-### cluster_distribution_2.p
+### cluster_distribution_2.p (not included)
 
 1000 nodes
 Barabasi-Albert
