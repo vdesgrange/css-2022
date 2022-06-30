@@ -12,6 +12,9 @@ from .analysis import *
 def number_state(model, state):
     """
     Return number of states
+    :param model: Mesa model
+    :param state: agent state
+    :return int: number of agent in the given state
     """
     return sum(1 for a in model.grid.get_all_cell_contents() if a.state is state)
 
@@ -19,6 +22,8 @@ def number_state(model, state):
 def number_infected(model):
     """
     Get number of INFECTED
+    :param model: Mesa model
+    :return int: number of agent in the infected state
     """
     return number_state(model, State.INFECTED)
 
@@ -26,6 +31,8 @@ def number_infected(model):
 def number_susceptible(model):
     """
     Get number of SUSCEPTIBLE
+    :param model: Mesa model
+    :return int: number of agent in the susceptible state
     """
     return number_state(model, State.SUSCEPTIBLE)
 
@@ -33,6 +40,8 @@ def number_susceptible(model):
 def number_resistant(model):
     """
     Get number of RESISTANT
+    :param model: Mesa model
+    :return int: number of agent in the resistant state
     """
     return number_state(model, State.RESISTANT)
 
@@ -40,6 +49,8 @@ def number_resistant(model):
 def number_offline(model):
     """
     Get number of OFFLINE
+    :param model: Mesa model
+    :return int: number of agent in the offline state
     """
     return number_state(model, State.OFFLINE)
 
@@ -68,6 +79,9 @@ def clustering_coeff(model):
     return get_clustering_coefficient(H)
 
 def cluster_distribution(model):
+    """
+    Get cluster size distribution
+    """
     H = regenerate_network(model.G, model.grid)
     return analyse_clusters(H)
 
@@ -153,10 +167,6 @@ class VirusOnNetwork(Model):
         self.running = True
         self.datacollector.collect(self)
 
-        # self.print_infected()
-        # print([j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)])
-
-
     def get_network(self, network, prob):
         """
         Initialise network graph
@@ -177,11 +187,9 @@ class VirusOnNetwork(Model):
     def set_initial_outbreak(self, initial_outbreak_size, centrality = "random", descending = True):
         """
         Set initial outbreak nodes
-        centralities:
-        - None (random)
-        - degree centrality
-        - Closeness
-        - Betweennes
+        :param initial_outbreak_size: size of the initial outbreak
+        :param centrality: type of centrality for initial outbreak: None == random, degree, closeness, betweennes
+        :return array: list of node id
         """
 
         if centrality == 'random':
@@ -202,6 +210,10 @@ class VirusOnNetwork(Model):
         return []
 
     def resistant_susceptible_ratio(self):
+        """
+        Compute ration resistant / susceptible
+        :return ratio: float
+        """
         try:
             return number_state(self, State.RESISTANT) / number_state(
                 self, State.SUSCEPTIBLE
@@ -214,20 +226,21 @@ class VirusOnNetwork(Model):
         Mesa model step
         """
         self.schedule.step()
-        # row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
-        # self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
 
     def run_model(self, n):
         """
         Run model for fixed number of iteration
+        :param n: number of simulation steps
         """
         for _ in range(n):
             self.step()
 
     def print_infected(self):
-        """ prints infected nodes in matrix form """
+        """
+        Prints infected nodes in matrix form
+        """
         l1 = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
         print(l1)
         self.matrix.append(l1)
