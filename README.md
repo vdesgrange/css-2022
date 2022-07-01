@@ -9,10 +9,12 @@ Implementation based on the papers:
 
 Model and documentation associated located in `SIROD` directory
 
+## Cellular automata model (S-I-R-O-D)
+
+Model and documentation associated located in `CA` directory. Follow the same rules than the ABM model (S-I-R-O-D) slightly different implementation
+for different kind of experiments.
+
+
 ## H-I-R-E-D model
 
 Model and documentation associated located in `HIRED` directory
-
-## Cellular automata model (S-I-R-O-D)
-
-Model and documentation associated located in `CA` directory
