@@ -1,37 +1,20 @@
-# Complex Systems Simulation 2022
+# Malware propagation through network
+
+## Agent-based model (S-I-R-O-D)
+
 Malware propagation through network
-Basic implementation based on the papers:
-Advanced malware propagation on random complex networks (Del Rey et al. 2020)
-A New Individual-Based Model to Simulate Malware Propagation in Wireless Sensor Networks
+Implementation based on the papers:
+- Advanced malware propagation on random complex networks (Del Rey et al. 2020)
+- A New Individual-Based Model to Simulate Malware Propagation in Wireless Sensor Networks
+
+Model and documentation associated located in `SIROD` directory
+
+## Cellular automata model (S-I-R-O-D)
+
+Model and documentation associated located in `CA` directory. Follow the same rules than the ABM model (S-I-R-O-D) slightly different implementation
+for different kind of experiments.
 
 
-Extra features implemented on ABM model based on networkX:
-- Different network topologies (ER, WS, BA)
-- Select infected node(s) based on centrality (degree, closeness, betweenness, random)
-- Print states of every node per timestep in matrix for lattice
-- Implemented offline nodes, Death nodes
+## H-I-R-E-D model
 
-
-install mesa (from source)
-
-```
-git clone git@github.com:projectmesa/mesa.git
-```
-
-Once cloned, go to folder and run
-
-```
-sudo python setup.py install
-```
-
-### Run Model
-
-To run the model, run in terminal
-
-```
-python3 run.py
-```
-
-Now go to
-
-http://127.0.0.1:8521/
+Model and documentation associated located in `HIRED` directory
