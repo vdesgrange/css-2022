@@ -4,6 +4,7 @@ import os
 
 cwd = os.getcwd ()
 
+
 def average(filen = "data/max_avg_spread_example_1000_ER.csv"):
 
     os.chdir('data')

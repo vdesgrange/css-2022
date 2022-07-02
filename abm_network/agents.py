@@ -2,6 +2,7 @@ from mesa.agent import Agent
 from .constants import State
 
 class MalwareAgent(Agent):
+
     def __init__(
         self,
         unique_id,
@@ -15,7 +16,9 @@ class MalwareAgent(Agent):
         susceptible_chance,
         death_chance,
     ):
+
         super().__init__(unique_id, model)
+
         self.model = model
         self.state = initial_state
         self.malware_spread_chance = malware_spread_chance
@@ -25,6 +28,7 @@ class MalwareAgent(Agent):
         self.importance = importance
         self.susceptible_chance = susceptible_chance
         self.death_chance = death_chance
+
 
     def try_to_notify_neighbors(self):
         """ if importance under 0.8, nodes can shut themselves down in order to prevent being infected """
