@@ -5,14 +5,7 @@ import mesa
 from mesa.model import Model
 from .constants import State
 from .agents import MalwareAgent
-<<<<<<< HEAD:abm_network/model.py
-from .analysis import regenerate_network, get_clusters, get_clustering_coefficient
-from networkx import path_graph, random_layout
-import copy
-=======
 from .analysis import *
-
->>>>>>> 21342aa8d8bccb494fa8227c2f6698a343fc0ed7:SIROD/abm_network/model.py
 
 
 def number_state(model, state):
@@ -77,6 +70,7 @@ def number_clusters(model):
     H = regenerate_network(model.G, model.grid)
     return get_clusters(H)
 
+
 def clustering_coeff(model):
     """
     Generate graph with offline/dead node removed 
@@ -86,13 +80,13 @@ def clustering_coeff(model):
     H = regenerate_network(model.G, model.grid)
     return get_clustering_coefficient(H)
 
+
 def cluster_distribution(model):
     """
     Get cluster size distribution
     """
     H = regenerate_network(model.G, model.grid)
     return analyse_clusters(H)
-
 
 
 class VirusOnNetwork(Model):
@@ -102,7 +96,7 @@ class VirusOnNetwork(Model):
         self,
         num_nodes=30,
         avg_node_degree=3,
-        initial_outbreak_size=3,
+        initial_outbreak_size=2,
         centrality="random",
         malware_spread_chance=0.4,
         malware_check_frequency=0.4,
@@ -176,12 +170,14 @@ class VirusOnNetwork(Model):
         self.datacollector.collect(self)
 
     def get_network(self, network, prob):
+
         """
         Initialise network graph
         :param network: network type
         :param prob: connexion probability 
         :return graph
         """
+
         if network.lower() == "erdos-renyi":
             return nx.erdos_renyi_graph(n = self.num_nodes, p = prob, seed = 42)
 
@@ -215,10 +211,6 @@ class VirusOnNetwork(Model):
             betweenness = sorted(nx.betweenness_centrality(self.G).items(), key=lambda x:x[1], reverse = descending)
             return [i[0] for i in betweenness][:initial_outbreak_size]
 
-<<<<<<< HEAD:abm_network/model.py
-=======
-        return []
->>>>>>> 21342aa8d8bccb494fa8227c2f6698a343fc0ed7:SIROD/abm_network/model.py
 
     def resistant_susceptible_ratio(self):
         """
@@ -240,7 +232,7 @@ class VirusOnNetwork(Model):
         self.schedule.step()
         # collect data
         self.datacollector.collect(self)
-        # print(regenerate_network(self.G, self.grid))
+        print(regenerate_network(self.G, self.grid))
 
 
     def run_model(self, n):
@@ -252,6 +244,7 @@ class VirusOnNetwork(Model):
         
         for _ in range(n):
             self.step()
+
 
     def print_infected(self):
         """
