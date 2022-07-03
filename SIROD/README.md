@@ -17,13 +17,20 @@ Extra features implemented on ABM model based on networkX:
 ### Installation
 
 mesa library provided by package manager (pip, conda) might not run.
-To solve this issue, install mesa (from source) into the code base directory:
+To solve this issue, install the git submodule from the root of this repository
+
+```
+git submodule init
+git submodule update
+```
+
+Or directly install mesa (from source) into the code base directory `SIROD/abm_network/` :
 
 ```
 git clone git@github.com:projectmesa/mesa.git
 ```
 
-Once cloned, go to folder and run
+Once cloned, go to `SIROD/abm_network/mesa` folder and run
 
 ```
 sudo python setup.py install
