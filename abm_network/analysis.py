@@ -7,7 +7,7 @@ from .constants import State
 def regenerate_network(G, grid):
 
     H = copy.deepcopy(G)
-    print(G)
+    # print(G)
     for u in grid.get_all_cell_contents():
         if u.state in [State.DEATH, State.OFFLINE]:
             # H.remove_edge(u.unique_id, v)

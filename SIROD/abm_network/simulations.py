@@ -26,16 +26,11 @@ targeted_ba = {
 
 
 def experiment_a():
-<<<<<<< HEAD:abm_network/simulations.py
 
     iterations, max_steps = input_sim(1, 100)
-=======
     """
     Example of mesa batch_run usage to perform simulation analysis
     """
-    global iterations 
-    global max_steps
->>>>>>> 21342aa8d8bccb494fa8227c2f6698a343fc0ed7:SIROD/abm_network/simulations.py
 
     results = mesa.batch_run(
         VirusOnNetwork,
@@ -117,7 +112,4 @@ def simulations():
     print(res)
     end = time.time() - start
     print(end)
-<<<<<<< HEAD:abm_network/simulations.py
-=======
 
->>>>>>> 21342aa8d8bccb494fa8227c2f6698a343fc0ed7:SIROD/abm_network/simulations.py

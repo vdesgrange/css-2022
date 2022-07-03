@@ -102,7 +102,7 @@ class VirusOnNetwork(Model):
         self,
         num_nodes=30,
         avg_node_degree=3,
-        initial_outbreak_size=2,
+        initial_outbreak_size=3,
         centrality="random",
         malware_spread_chance=0.4,
         malware_check_frequency=0.4,
@@ -240,7 +240,7 @@ class VirusOnNetwork(Model):
         self.schedule.step()
         # collect data
         self.datacollector.collect(self)
-        print(regenerate_network(self.G, self.grid))
+        # print(regenerate_network(self.G, self.grid))
 
 
     def run_model(self, n):
