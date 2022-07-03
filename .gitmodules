@@ -1,0 +1,3 @@
+[submodule "SIROD/abm_network/mesa"]
+	path = SIROD/abm_network/mesa
+	url = git@github.com:projectmesa/mesa.git
