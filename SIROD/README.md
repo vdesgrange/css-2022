@@ -66,15 +66,15 @@ server = ModularServer(
 
 - run.py - Run simulation interface
 - run_experiments.py - A file used to generate some of simulation data for analysis.
-notebooks/ - Contains jupyter notebooks used for analysis of simulation data.
-  - notebooks/data - Contains data generated through multiple simulation, used for analysis
-  
 - abm_network/ - source code
-  - agents.py - Mesa malware (main agent) and antivirus agent classes
-  - analysis.py - Functions used to aggregate model data for further analysis
-  - constants.py - Constants used in the model
-  - model.py - Mesa VirusOnNewtwork (main model) and AntivirusOnNetwork model classes.
-  - parameters.py - Parameters used by Mesa server
-  - rule_functions.py - Functions to be used for model/agent probabilities
-  - server.py - Mesa server.
-  - simulations.py - Example of script for model simulation analysis
+    - agents.py - Mesa malware (main agent) and antivirus agent classes
+    - analysis.py - Functions used to aggregate model data for further analysis
+    - constants.py - Constants used in the model
+    - model.py - Mesa VirusOnNewtwork (main model) and AntivirusOnNetwork model classes.
+    - parameters.py - Parameters used by Mesa server
+    - rule_functions.py - Functions to be used for model/agent probabilities
+    - server.py - Mesa server.
+    - simulations.py - Example of script for model simulation analysis
+- notebooks/ - Contains jupyter notebooks used for analysis of simulation data.
+    - notebooks/data - Contains data generated through multiple simulation, used for analysis
+- cluster_distribution_analysis.ipynb - Jupyter notebook for cluster analysis. Not located in notebooks directory due to direct import of abm_network package source code.
