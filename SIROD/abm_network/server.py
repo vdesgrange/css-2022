@@ -1,5 +1,5 @@
 import math
-from .model import VirusOnNetwork, State, number_death, number_infected, number_offline
+from .model import AntivirusOnNetwork, VirusOnNetwork, State, number_death, number_infected, number_offline
 from mesa.visualization.modules import NetworkModule, ChartModule
 from mesa.visualization.ModularVisualization import ModularServer
 from .constants import NODE_COLORMAP
@@ -111,7 +111,7 @@ def get_resistant_susceptible_ratio(model):
 
 # Launch server
 server = ModularServer(
-    VirusOnNetwork,
+    AntivirusOnNetwork,
     [network,
      get_resistant_susceptible_ratio,
      phase_chart,
