@@ -81,14 +81,13 @@ def simulate(N = 10, iterations = 1, k = 1):
 
     for j, res in enumerate(results):
 
-        with open(f'data/av/ts_iod_{N}_ER_{j}_{k}.csv', 'w') as f: 
+        with open(f'notebooks/data/av/ts_iod_{N}_ER_{j}_{k}.csv', 'w') as f: 
             write = csv.writer(f) 
             for l in res:
                 write.writerow(l) 
 
 
 if __name__ == "__main__":
-    
     # Amount of nodes
     N = int(sys.argv[1])
 
