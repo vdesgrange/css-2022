@@ -125,10 +125,6 @@ functional_model_params = {
         description="Probability that a recovered agent will become "
         "resistant to this virus in the future",
     ),
-    "malware_spread_chance": malware_spread_chance,
-    "malware_check_frequency":  malware_check_frequency,
-    "recovery_chance":  recovery_chance,
-    "gain_resistance_chance":  gain_resistance_chance,
     "susceptible_chance":  susceptible_chance,
     "death_chance":  death_chance,
     "importance": importance_degree,
