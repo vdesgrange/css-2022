@@ -2,6 +2,11 @@ from mesa.agent import Agent
 from .constants import State
 
 class MalwareAgent(Agent):
+    """
+    Malware agent is the default agent model. It follows
+    the S-I-R-O-D compartmental model rules to spread malware infection through 
+    networks based on the agent parameters.
+    """
     def __init__(
         self,
         unique_id,
@@ -151,6 +156,11 @@ class MalwareAgent(Agent):
                 self.try_be_susceptible()
 
     def step(self):
+        """
+        Agent simulation step
+        If state is infected, neighbors agents might be infected or disconnect.
+        Else, try to check situation and act accordingly.
+        """
         if self.state is State.INFECTED:
             self.try_to_infect_neighbors()
             self.try_to_notify_neighbors()
@@ -158,6 +168,10 @@ class MalwareAgent(Agent):
             self.try_check_situation()
 
 class AntiVirusAgent(Agent):
+    """
+    AntiVirus agent is a simplified agent model integrating 
+    a step to make the agent resistant to the malware without getting infected.
+    """
     def __init__(
         self,
         unique_id,
@@ -188,9 +202,7 @@ class AntiVirusAgent(Agent):
 
 
     def try_to_notify_neighbors(self):
-
         """ if importance under 0.8, nodes can shut themselves down in order to prevent being infected """
-
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
         susceptible_neighbors = [
             agent
@@ -210,6 +222,9 @@ class AntiVirusAgent(Agent):
                 a.state = State.OFFLINE
 
     def try_to_infect_neighbors(self):
+        """
+        Try to infect neighbors nodes.
+        """
         neighbors_nodes = self.model.grid.get_neighbors(self.pos, include_center=False)
         susceptible_neighbors = [
             agent
@@ -226,6 +241,9 @@ class AntiVirusAgent(Agent):
 
 
     def try_be_susceptible(self):
+        """
+        Try to become susceptible
+        """
         p_chance = self.susceptible_chance
         if callable(self.susceptible_chance):
             p_chance = self.susceptible_chance(self.model)
@@ -235,18 +253,23 @@ class AntiVirusAgent(Agent):
 
 
     def update_software(self):
-
+        """
+        If agent is disconnected from network, antivirus make agent resistant.
+        Else, try to gain resistance (50%) while online.
+        """
         if self.state is State.OFFLINE:
             self.state = State.RESISTANT
             return
 
         p_chance = 0.5
-        
         if self.random.random() < p_chance:
             self.state = State.RESISTANT
 
 
     def try_check_situation(self):
+        """
+        Try to act with regards to current agent state
+        """
         p_freq = self.malware_check_frequency
 
         if callable(self.malware_check_frequency):
@@ -260,6 +283,11 @@ class AntiVirusAgent(Agent):
 
 
     def step(self):
+        """
+        Agent simulation step
+        If state is infected, neighbors agents might be infected or disconnect.
+        Else, antivirus try acting
+        """
         if self.state is State.INFECTED:
             self.try_to_infect_neighbors()
             self.try_check_situation()

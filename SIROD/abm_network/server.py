@@ -111,7 +111,7 @@ def get_resistant_susceptible_ratio(model):
 
 # Launch server
 server = ModularServer(
-    AntivirusOnNetwork,
+    VirusOnNetwork,
     [network,
      get_resistant_susceptible_ratio,
      phase_chart,

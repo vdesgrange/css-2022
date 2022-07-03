@@ -6,8 +6,6 @@ from mesa.model import Model
 from .constants import State
 from .agents import MalwareAgent
 from .analysis import *
-counter = 0
-flag = False
 
 
 def number_state(model, state):
@@ -172,7 +170,6 @@ class VirusOnNetwork(Model):
         self.datacollector.collect(self)
 
     def get_network(self, network, prob):
-
         """
         Initialise network graph
         :param network: network type
@@ -238,12 +235,11 @@ class VirusOnNetwork(Model):
 
 
     def run_model(self, n):
-
         """
         Run model for fixed number of iteration
         :param n: number of simulation steps
         """
-        
+
         for _ in range(n):
             self.step()
 
@@ -260,6 +256,8 @@ class VirusOnNetwork(Model):
 
 class AntivirusOnNetwork(Model):
     """A malware model with some number of agents"""
+    counter = 0
+    flag = False
 
     def __init__(
         self,
@@ -310,7 +308,6 @@ class AntivirusOnNetwork(Model):
                 "Ccoeff": clustering_coeff,
             }
         )
-        
 
         # Create agents
         for i, node in enumerate(self.G.nodes()):
@@ -342,11 +339,14 @@ class AntivirusOnNetwork(Model):
         self.running = True
         self.datacollector.collect(self)
 
-        # self.print_infected()
-        # print([j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)])
-
 
     def get_network(self, network, prob):
+        """
+        Initialise network graph
+        :param network: network type
+        :param prob: connexion probability 
+        :return graph
+        """
         if network.lower() == "erdos-renyi":
             return nx.erdos_renyi_graph(n = self.num_nodes, p = prob, seed = 22)
 
@@ -358,7 +358,6 @@ class AntivirusOnNetwork(Model):
 
 
     def set_initial_outbreak(self, initial_outbreak_size, centrality = "random", descending = True):
-        
         """
         Set initial outbreak nodes
         centralities:
@@ -385,28 +384,19 @@ class AntivirusOnNetwork(Model):
 
 
     def resistant_susceptible_ratio(self):
-
+        """
+        Compute ration resistant / susceptible
+        :return ratio: float
+        """
         try:
             return number_state(self, State.RESISTANT) / number_state(
                 self, State.SUSCEPTIBLE
             )
         except ZeroDivisionError:
             return math.inf
-
-    def resistant_susceptible__infected_ratio(self):
-
-        try:
-            return number_state(self, State.RESISTANT) / number_state(
-                self, State.SUSCEPTIBLE
-            )
-        except ZeroDivisionError:
-            return math.inf
-
 
     def offline_infected_susceptible_ratio(self):
-
         """ Ratio offline nodes vs susceptible + infected nodes """
-
         try:
             return (number_state(self, State.OFFLINE)) / (number_state(
                 self, State.SUSCEPTIBLE
@@ -414,8 +404,11 @@ class AntivirusOnNetwork(Model):
         except ZeroDivisionError:
             return math.inf
 
-    
     def try_create_antivirus(self):
+        """
+        At each step has a fixed percentage of 0.05 to activate antivirus.
+        If ratio of offline to infected + susceptible > 0.6, activate antivirus.
+        """
 
         if random.random() < 0.05: self.antivirus = True
 
@@ -424,33 +417,29 @@ class AntivirusOnNetwork(Model):
 
 
     def step(self):
-
-        global counter
-        global flag
-        counter += 1
+        """
+        Mesa model step
+        """
+        self.counter += 1
         self.schedule.step()
         row = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
-        # self.matrix.append(row)
         # collect data
         self.datacollector.collect(self)
         self.try_create_antivirus()
 
-        if self.antivirus and not flag:
-            print(f"Antivirus found at step {counter}, nw size = {self.num_nodes}")
-            flag = True
-        # print(self.antivirus)
+        if self.antivirus and not self.flag:
+            print(f"Antivirus found at step {self.counter}, nw size = {self.num_nodes}")
+            self.flag = True
 
     def run_model(self, n):
-
-        for i in range(n):
+        """
+        Run model for fixed number of iteration
+        :param n: number of simulation steps
+        """
+        for _ in range(n):
             self.step()
 
 
     def print_infected(self):
-
         """ prints infected nodes in matrix form """
-
-        # l1 = [j['agent'][0].state.value for (i,j) in self.G.nodes(data=True)]
-        # print(l1)
-        # self.matrix.append(l1)
         print(number_susceptible(self), number_infected(self), number_resistant(self))
