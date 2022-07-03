@@ -4,10 +4,12 @@ import pandas as pd
 import csv
 import sys
 
-
-# get
-
 def simulate_ba_spread(N = 10):
+
+    """
+    Topology: barabasi albert
+    Run experiments to calculate fraction of affected nodes
+    """
     
     max_spread = []
 
@@ -26,6 +28,11 @@ def simulate_ba_spread(N = 10):
 
 def calculate_max_avg_spread(N = 10):
 
+    """
+    Topology: Erdos-Renyi
+    Run experiments to calculate fraction of affected nodes
+    """
+    
     max_spread = []
 
     for i in range(100):
@@ -40,6 +47,11 @@ def calculate_max_avg_spread(N = 10):
             write.writerow([i]) 
 
 def calculate_max_avg_spread(N = 10):
+
+    """
+    Topology: Barabasi-Albert
+    Run experiments to calculate fraction of affected nodes
+    """
 
     max_spread = []
 
@@ -56,6 +68,11 @@ def calculate_max_avg_spread(N = 10):
 
 
 def simulate(N = 10, iterations = 1, k = 1):
+
+    """
+    Topology: Erdos-Renyi
+    Run experiments to calculate fraction of affected nodes
+    """
 
     results = []
 
